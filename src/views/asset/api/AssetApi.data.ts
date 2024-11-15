@@ -54,6 +54,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'http_method',
+      mode: 'multiple',
     },
   },
   {

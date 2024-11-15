@@ -100,6 +100,7 @@
       component: 'JDictSelectTag',
       componentProps: {
         dictCode: 'lite_flow_task,task_name,id',
+        mode: 'multiple',
       },
       //colProps: {span: 6},
     },
@@ -109,6 +110,7 @@
       component: 'JDictSelectTag',
       componentProps: {
         dictCode: 'client,client_name,id',
+        mode: 'multiple',
       },
       //colProps: {span: 6},
     },
@@ -118,6 +120,7 @@
       component: 'JDictSelectTag',
       componentProps: {
         dictCode: 'plugin_status',
+        mode: 'multiple',
       },
     },
   ];
@@ -144,6 +147,10 @@
       },
       beforeFetch: (params) => {
         return Object.assign(params, queryParam);
+      },
+      defSort: {
+        column: 'id',
+        order: 'desc',
       },
     },
   });

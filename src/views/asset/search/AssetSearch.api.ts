@@ -1,7 +1,4 @@
 import { defHttp } from '/@/utils/http/axios';
-import { useMessage } from '/@/hooks/web/useMessage';
-
-const { createConfirm } = useMessage();
 
 export enum Api {
   search = '/testnet.server/asset/search',
@@ -31,3 +28,5 @@ export const assetImport = (params) => {
     params,
   });
 };
+
+

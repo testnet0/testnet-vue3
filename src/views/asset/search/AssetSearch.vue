@@ -34,14 +34,17 @@
   import { useListPage } from '@/hooks/system/useListPage';
   import { search } from '@/views/asset/search/AssetSearch.api';
   import AssetImportModal from '@/views/asset/search/components/AssetImportModal.vue';
-  import { h, reactive, ref, unref } from 'vue';
+  import { h, reactive, ref } from 'vue';
   import { Tag } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
   import { router } from '@/router';
+  import { collectKeyword, searchAutoComplete } from '@/views/asset/search_keyword/SearchEngineKeyword.api';
+
   const [registerModal, { openModal }] = useModal();
   const queryParam = reactive<any>({});
   const pagination = reactive({ pageSize: 10, pageSizeOptions: ['10', '50', '100', '500'] });
   const routeParams = router.currentRoute.value.query;
+  const engine = ref(routeParams.engine ? routeParams.engine : 'hunter');
   const searchFormSchema: FormSchema[] = [
     {
       label: '搜索引擎',
@@ -56,16 +59,36 @@
           { label: 'Quake', value: 'quake' },
           { label: 'Shodan', value: 'shodan' },
         ],
+        onChange: (value) => {
+          engine.value = value;
+        },
+      },
+      colProps: {
+        span: 8,
       },
     },
     {
       label: '查询语法',
       field: 'keyword',
       defaultValue: routeParams.keyword ? routeParams.keyword : '',
-      component: 'InputTextArea',
+      component: 'JSearchEngineSearch',
       componentProps: {
-        minRows: 1,
         placeholder: '请输入查询语法',
+        engine: engine.value,
+        handleSearch: async (keyword) => {
+          try {
+            return await searchAutoComplete({ engine: engine.value, keyword });
+          } catch (error) {
+            console.error('Error fetching options:', error);
+            return [];
+          }
+        },
+        handleMark: async (keyword) => {
+          await collectKeyword({ keyword: keyword, engine: engine.value, type: 'user' });
+        },
+      },
+      colProps: {
+        span: 12,
       },
     },
     {
@@ -323,7 +346,7 @@
       formConfig: {
         labelWidth: 120,
         schemas: searchFormSchema,
-        autoSubmitOnEnter: true,
+        autoSubmitOnEnter: false,
         showAdvancedButton: false,
         fieldMapToNumber: [],
         //将表单内时间区域的值映射成 2个字段, 'YYYY-MM-DD'日期格式化

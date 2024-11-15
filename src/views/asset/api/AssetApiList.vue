@@ -18,7 +18,7 @@
           <!--插槽:table标题-->
           <template #tableTitle>
             <a-button type="primary" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-            <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+            <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXlsx"> 导出</a-button>
             <j-upload-button type="primary" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
             <super-query :config="superQueryConfig" @search="handleSuperQuery" />
             <a-dropdown>
@@ -117,7 +117,7 @@
     leftTree.value.loadRootTreeData();
   }
   // 列表页面公共参数、方法
-  const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
+  const { prefixCls, tableContext, onExportXlsx, onImportXls } = useListPage({
     tableProps: {
       api: list,
       columns,

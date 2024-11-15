@@ -8,7 +8,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 import { useMethods } from '/@/hooks/system/useMethods';
 import { useDesign } from '/@/hooks/web/useDesign';
 import { filterObj } from '/@/utils/common/compUtils';
-const { handleExportXls, handleImportXls } = useMethods();
+const { handleExportXls, handleImportXls, handleExportXlsx } = useMethods();
 
 // 定义 useListPage 方法所需参数
 interface ListPageOptions {
@@ -64,30 +64,30 @@ export function useListPage(options: ListPageOptions) {
   // 导出 excel
   async function onExportXls() {
     //update-begin---author:wangshuai ---date:20220411  for：导出新增自定义参数------------
-    let { url, name, params } = options?.exportConfig ?? {};
-    let realUrl = typeof url === 'function' ? url() : url;
+    const { url, name, params } = options?.exportConfig ?? {};
+    const realUrl = typeof url === 'function' ? url() : url;
     if (realUrl) {
-      let title = typeof name === 'function' ? name() : name;
+      const title = typeof name === 'function' ? name() : name;
       //update-begin-author:taoyan date:20220507 for: erp代码生成 子表 导出报错，原因未知-
-      let paramsForm:any = {};
+      let paramsForm: any = {};
       try {
         paramsForm = await getForm().validate();
       } catch (e) {
         console.error(e);
       }
       //update-end-author:taoyan date:20220507 for: erp代码生成 子表 导出报错，原因未知-
-      
+
       //update-begin-author:liusq date:20230410 for:[/issues/409]导出功能没有按排序结果导出,设置导出默认排序，创建时间倒序
-      if(!paramsForm?.column){
-         Object.assign(paramsForm,{column:'createTime',order:'desc'});
+      if (!paramsForm?.column) {
+        Object.assign(paramsForm, { column: 'createTime', order: 'desc' });
       }
       //update-begin-author:liusq date:20230410 for: [/issues/409]导出功能没有按排序结果导出,设置导出默认排序，创建时间倒序
-      
+
       //如果参数不为空，则整合到一起
       //update-begin-author:taoyan date:20220507 for: erp代码生成 子表 导出动态设置mainId
       if (params) {
         Object.keys(params).map((k) => {
-          let temp = (params as object)[k];
+          const temp = (params as object)[k];
           if (temp) {
             paramsForm[k] = unref(temp);
           }
@@ -97,7 +97,6 @@ export function useListPage(options: ListPageOptions) {
       if (selectedRowKeys.value && selectedRowKeys.value.length > 0) {
         paramsForm['selections'] = selectedRowKeys.value.join(',');
       }
-      console.log()
       return handleExportXls(title as string, realUrl, filterObj(paramsForm));
       //update-end---author:wangshuai ---date:20220411  for：导出新增自定义参数--------------
     } else {
@@ -106,11 +105,53 @@ export function useListPage(options: ListPageOptions) {
     }
   }
 
+  async function onExportXlsx() {
+    //update-begin---author:wangshuai ---date:20220411  for：导出新增自定义参数------------
+    const { url, name, params } = options?.exportConfig ?? {};
+    const realUrl = typeof url === 'function' ? url() : url;
+    if (realUrl) {
+      const title = typeof name === 'function' ? name() : name;
+      //update-begin-author:taoyan date:20220507 for: erp代码生成 子表 导出报错，原因未知-
+      let paramsForm: any = {};
+      try {
+        paramsForm = await getForm().validate();
+      } catch (e) {
+        console.error(e);
+      }
+      //update-end-author:taoyan date:20220507 for: erp代码生成 子表 导出报错，原因未知-
+
+      //update-begin-author:liusq date:20230410 for:[/issues/409]导出功能没有按排序结果导出,设置导出默认排序，创建时间倒序
+      if (!paramsForm?.column) {
+        Object.assign(paramsForm, { column: 'createTime', order: 'desc' });
+      }
+      //update-begin-author:liusq date:20230410 for: [/issues/409]导出功能没有按排序结果导出,设置导出默认排序，创建时间倒序
+
+      //如果参数不为空，则整合到一起
+      //update-begin-author:taoyan date:20220507 for: erp代码生成 子表 导出动态设置mainId
+      if (params) {
+        Object.keys(params).map((k) => {
+          const temp = (params as object)[k];
+          if (temp) {
+            paramsForm[k] = unref(temp);
+          }
+        });
+      }
+      //update-end-author:taoyan date:20220507 for: erp代码生成 子表 导出动态设置mainId
+      if (selectedRowKeys.value && selectedRowKeys.value.length > 0) {
+        paramsForm['selections'] = selectedRowKeys.value.join(',');
+      }
+      return handleExportXlsx(title as string, realUrl, filterObj(paramsForm));
+      //update-end---author:wangshuai ---date:20220411  for：导出新增自定义参数--------------
+    } else {
+      $message.createMessage.warn('没有传递 exportConfig.url 参数');
+      return Promise.reject();
+    }
+  }
   // 导入 excel
   function onImportXls(file) {
-    let { url, success } = options?.importConfig ?? {};
+    const { url, success } = options?.importConfig ?? {};
     //update-begin-author:taoyan date:20220507 for: erp代码生成 子表 导入地址是动态的
-    let realUrl = typeof url === 'function' ? url() : url;
+    const realUrl = typeof url === 'function' ? url() : url;
     if (realUrl) {
       return handleImportXls(file, realUrl, success || reload);
       //update-end-author:taoyan date:20220507 for: erp代码生成 子表 导入地址是动态的
@@ -166,6 +207,7 @@ export function useListPage(options: ListPageOptions) {
   return {
     ...$design,
     ...$message,
+    onExportXlsx,
     onExportXls,
     onImportXls,
     doRequest,
@@ -194,7 +236,7 @@ export function useListTable(tableProps: TableProps): [
     rowSelection: any;
     selectedRows: Ref<Recordable[]>;
     selectedRowKeys: Ref<any[]>;
-  }
+  },
 ] {
   // 自适应列配置
   const adaptiveColProps: Partial<ColEx> = {
@@ -277,7 +319,7 @@ export function useListTable(tableProps: TableProps): [
   // 合并用户个性化配置
   if (tableProps) {
     //update-begin---author:wangshuai---date:2024-04-28---for:【issues/6180】前端代码配置表变查询条件显示列不生效---
-    if(tableProps.formConfig){
+    if (tableProps.formConfig) {
       setTableProps(tableProps.formConfig);
     }
     //update-end---author:wangshuai---date:2024-04-28---for:【issues/6180】前端代码配置表变查询条件显示列不生效---
@@ -332,11 +374,11 @@ export function useListTable(tableProps: TableProps): [
    * @param formConfig
    */
   function setTableProps(formConfig: any) {
-    const replaceAttributeArray: string[] = ['baseColProps','labelCol'];
-    for (let item of replaceAttributeArray) {
-      if(formConfig && formConfig[item]){
-        if(defaultTableProps.formConfig){
-          let defaultFormConfig:any = defaultTableProps.formConfig;
+    const replaceAttributeArray: string[] = ['baseColProps', 'labelCol'];
+    for (const item of replaceAttributeArray) {
+      if (formConfig && formConfig[item]) {
+        if (defaultTableProps.formConfig) {
+          const defaultFormConfig: any = defaultTableProps.formConfig;
           defaultFormConfig[item] = formConfig[item];
         }
         formConfig[item] = {};

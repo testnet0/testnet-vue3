@@ -27,6 +27,7 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       dictCode: 'engine_name',
     },
+    dynamicDisabled: true,
   },
   {
     label: '引擎Token',

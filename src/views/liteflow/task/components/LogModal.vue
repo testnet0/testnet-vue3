@@ -1,9 +1,16 @@
 <template>
   <BasicModal v-bind="$attrs" destroyOnClose :width="800" :show-ok-btn="false" :show-cancel-btn="false" title="运行日志" @cancel="handleCloseModal">
+    <div class="button-group">
+      <a-button @click="toggleExpand" class="mr-2" :type="isExpanded ? 'default' : 'primary'">
+        <span v-if="isExpanded">收起全部</span>
+        <span v-else>展开全部</span>
+      </a-button>
+    </div>
     <BasicTable
       :columns="columns"
       :dataSource="dataSource"
       :loading="loading"
+      @register="register"
       :pagination="{
         total: total,
         current: current,
@@ -36,8 +43,8 @@
   import { BasicColumn, BasicTable } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
   import JCodeEditor from '@/components/Form/src/jeecg/components/JCodeEditor.vue';
-  import { getSubTaskLog, liteFlowSubTaskList } from '@/views/liteflow/task/LiteFlowTask.api';
-  import {ref, watchEffect} from 'vue';
+  import { getSubTaskLog } from '@/views/liteflow/task/LiteFlowTask.api';
+  import { ref, watchEffect } from 'vue';
 
   const props = defineProps({
     logId: {
@@ -46,6 +53,16 @@
     },
   });
 
+  const isExpanded = ref(false);
+
+  function toggleExpand() {
+    isExpanded.value = !isExpanded.value;
+    if (isExpanded.value) {
+      methods.expandAll();
+    } else {
+      methods.collapseAll();
+    }
+  }
   const loading = ref(false);
   const dataSource = ref([]);
   const current = ref(1);
@@ -84,16 +101,19 @@
       title: '节点',
       dataIndex: 'clientName',
       key: 'clientName',
+      width: 50,
     },
     {
       title: '等级',
       dataIndex: 'level',
       key: 'level',
+      width: 50,
     },
     {
       title: '时间',
       dataIndex: 'timestamp',
       key: 'timestamp',
+      width: 80,
       customRender: (text) => {
         const date = new Date(Number(text.value));
         return date.toLocaleString(); // 根据本地时间格式返回日期字符串
@@ -103,7 +123,6 @@
       title: '消息',
       dataIndex: 'message',
       key: 'message',
-      ellipsis: true,
       width: 200,
       resizable: true,
     },
@@ -112,6 +131,7 @@
   const { tableContext } = useListPage({
     designScope: 'basic-table-demo',
     tableProps: {
+      isTreeTable: true,
       rowKey: 'timestamp',
       expandRowByClick: true,
       showActionColumn: false,
@@ -124,6 +144,13 @@
     },
   });
   // BasicTable绑定注册
-  const [registerTable] = tableContext;
+  const [register, methods] = tableContext;
+
+  async function expandAll() {
+    methods.expandAll();
+  }
+  async function collapseAll() {
+    methods.collapseAll();
+  }
 </script>
 <style lang="less" scoped></style>

@@ -73,6 +73,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'script_dict',
+      mode: 'multiple',
     },
   },
   {
@@ -93,6 +94,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'script_type',
+      mode: 'multiple',
     },
     //colProps: {span: 6},
   },
@@ -102,6 +104,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'script_language',
+      mode: 'multiple',
     },
     //colProps: {span: 6},
   },

@@ -75,6 +75,10 @@
       beforeFetch: (params) => {
         return Object.assign(params, queryParam);
       },
+      defSort: {
+        column: 'id',
+        order: 'desc',
+      },
     },
     exportConfig: {
       name: '脚本',

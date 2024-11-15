@@ -169,8 +169,8 @@ export const sendTestFormSchemas: FormSchema[] = [
     field: 'msgType',
     component: 'JDictSelectTag',
     required: true,
-    defaultValue:'system',
-    componentProps: { dictCode: 'messageType',type:'radio' },
+    defaultValue: 'system',
+    componentProps: { dictCode: 'messageType', type: 'radio' },
   },
   {
     label: '消息接收方',
@@ -180,6 +180,9 @@ export const sendTestFormSchemas: FormSchema[] = [
     componentProps: {
       labelKey: 'username',
       rowKey: 'username',
+    },
+    ifShow(renderCallbackParams) {
+      return renderCallbackParams.values.msgType !== 'webhook';
     },
   },
 ];

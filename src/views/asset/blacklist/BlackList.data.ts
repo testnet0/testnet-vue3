@@ -9,7 +9,12 @@ export const columns: BasicColumn[] = [
     dataIndex: 'assetType_dictText',
   },
   {
-    title: '关键字',
+    title: '黑名单类型',
+    align: 'center',
+    dataIndex: 'blacklistType_dictText',
+  },
+  {
+    title: '关键字/正则表达式',
     align: 'center',
     dataIndex: 'keyword',
   },
@@ -27,6 +32,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'asset_type',
+      mode: 'multiple',
     },
   },
 ];
@@ -36,13 +42,25 @@ export const formSchema: FormSchema[] = [
     label: '资产类型',
     field: 'assetType',
     component: 'JDictSelectTag',
+    required: true,
     componentProps: {
       dictCode: 'asset_type',
       getPopupContainer: (node) => document.body,
     },
   },
   {
-    label: '关键字',
+    label: '黑名单类型',
+    field: 'blacklistType',
+    required: true,
+    defaultValue: 'keyword',
+    component: 'JDictSelectTag',
+    componentProps: {
+      dictCode: 'blacklist_type',
+      getPopupContainer: (node) => document.body,
+    },
+  },
+  {
+    label: '关键字/正则表达式',
     field: 'keyword',
     component: 'Input',
   },

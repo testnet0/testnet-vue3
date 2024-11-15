@@ -5,7 +5,7 @@
       <!--插槽:table标题-->
       <template #tableTitle>
         <a-button preIcon="ant-design:plus-outlined" type="primary" @click="handleAdd"> 新增 </a-button>
-        <a-button preIcon="ant-design:export-outlined" type="primary" @click="onExportXls"> 导出 </a-button>
+        <a-button preIcon="ant-design:export-outlined" type="primary" @click="onExportXlsx"> 导出 </a-button>
         <j-upload-button preIcon="ant-design:import-outlined" type="primary" @click="onImportXls"> 导入 </j-upload-button>
         <!-- 高级查询 -->
         <super-query :config="superQueryConfig" @search="handleSuperQuery" />
@@ -88,7 +88,7 @@
     return list(requestParams);
   };
   //注册table数据
-  const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
+  const { prefixCls, tableContext, onExportXlsx, onImportXls } = useListPage({
     tableProps: {
       title: '公司',
       api: listNew,

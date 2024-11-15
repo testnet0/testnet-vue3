@@ -36,6 +36,7 @@ import { BasicUpload } from '/@/components/Upload';
 import { StrengthMeter } from '/@/components/StrengthMeter';
 import { IconPicker } from '/@/components/Icon';
 import { CountdownInput } from '/@/components/CountDown';
+import JSearchEngineSearch from './jeecg/components/JSearchEngineSearch.vue';
 //自定义组件
 // import JAreaLinkage from './jeecg/components/JAreaLinkage.vue';
 import JSelectUser from './jeecg/components/JSelectUser.vue';
@@ -169,8 +170,7 @@ componentMap.set('RangeDate', JRangeDate);
 componentMap.set('RangeTime', JRangeTime);
 componentMap.set('RoleSelect', RoleSelectInput);
 componentMap.set('JInputSelect', JInputSelect);
-
-
+componentMap.set('JSearchEngineSearch', JSearchEngineSearch);
 
 export function add(compName: ComponentType, component: Component) {
   componentMap.set(compName, component);

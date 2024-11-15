@@ -91,6 +91,10 @@
         width: 200,
         fixed: 'right',
       },
+      defSort: {
+        column: 'id',
+        order: 'desc',
+      },
       beforeFetch: (params) => {
         return Object.assign(params, queryParam);
       },

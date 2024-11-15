@@ -55,9 +55,9 @@ export const columns: BasicColumn[] = [
     dataIndex: 'priority',
   },
   {
-    title: '资产ID',
+    title: '指定节点',
     align: 'center',
-    dataIndex: 'assetId',
+    dataIndex: 'clientId_dictText',
   },
   {
     title: '定时执行',
@@ -232,27 +232,6 @@ export const formSchema: FormSchema[] = [
     //colProps: {span: 6},
   },
   {
-    label: '查询参数',
-    field: 'searchParam',
-    component: 'Input',
-    dynamicDisabled: true,
-  },
-  {
-    label: '扫描资产类型',
-    field: 'assetType',
-    component: 'JDictSelectTag',
-    dynamicDisabled: true,
-    componentProps: {
-      dictCode: 'asset_type',
-    },
-  },
-  {
-    label: '资产数量',
-    field: 'assetNum',
-    component: 'InputNumber',
-    dynamicDisabled: true,
-  },
-  {
     label: '定时执行',
     field: 'isCron',
     component: 'JSwitch',
@@ -264,11 +243,32 @@ export const formSchema: FormSchema[] = [
     field: 'jobCron',
     label: 'Cron表达式',
     component: 'JEasyCron',
-    defaultValue: '* * * * * ? *',
+    // defaultValue: '* * * * * ? *',
     rules: [{ required: true, message: '请输入Cron表达式' }, { validator: JCronValidator }],
     ifShow: ({ values }) => {
       return values.isCron == 1;
     },
+  },
+  {
+    label: '扫描资产类型',
+    field: 'assetType',
+    component: 'JDictSelectTag',
+    dynamicDisabled: true,
+    componentProps: {
+      dictCode: 'asset_type',
+    },
+  },
+  {
+    label: '查询参数',
+    field: 'searchParam',
+    component: 'Input',
+    dynamicDisabled: true,
+  },
+  {
+    label: '资产数量',
+    field: 'assetNum',
+    component: 'InputNumber',
+    dynamicDisabled: true,
   },
   // {
   //   label: '执行通知',
@@ -308,7 +308,7 @@ export const liteFlowSubTaskColumns: BasicColumn[] = [
   {
     title: '参数',
     align: 'center',
-    dataIndex: 'config',
+    dataIndex: 'subTaskParam',
   },
   {
     title: '创建时间',

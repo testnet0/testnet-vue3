@@ -67,6 +67,10 @@
         width: 150,
         fixed: 'right',
       },
+      defSort: {
+        column: 'id',
+        order: 'desc',
+      },
     },
     exportConfig: {
       name: '节点',

@@ -244,6 +244,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'severity',
+      mode: 'multiple',
     },
   },
   {
@@ -252,6 +253,7 @@ export const searchFormSchema: FormSchema[] = [
     component: 'JDictSelectTag',
     componentProps: {
       dictCode: 'vul_status',
+      mode: 'multiple',
     },
   },
   {
