@@ -53,16 +53,7 @@
   import LiteFlowTaskModal from './components/LiteFlowTaskModal.vue';
   import LiteFlowSubTaskSubTable from './subTables/LiteFlowSubTaskSubTable.vue';
   import { columns, searchFormSchema, superQuerySchema } from './LiteFlowTask.data';
-  import {
-    list,
-    deleteOne,
-    batchDelete,
-    getImportUrl,
-    getExportUrl,
-    executeAgain,
-    stopTask,
-    deleteByTask
-  } from './LiteFlowTask.api';
+  import { list, deleteOne, batchDelete, getImportUrl, getExportUrl, executeAgain, stopTask, deleteByTask } from './LiteFlowTask.api';
   import { useUserStore } from '/@/store/modules/user';
 
   const queryParam = reactive<any>({});
@@ -88,7 +79,7 @@
         fieldMapToTime: [],
       },
       actionColumn: {
-        width: 200,
+        width: 300,
         fixed: 'right',
       },
       defSort: {
@@ -179,7 +170,15 @@
    * 再次执行
    */
   async function handleExecuteAgain(record) {
-    await executeAgain({ id: record.id }, handleSuccess);
+    await executeAgain({ id: record.id, failed: false }, handleSuccess);
+    expandedRowKeys.value = [];
+  }
+
+  /**
+   * 再次执行失败任务
+   */
+  async function handleExecuteFailedAgain(record) {
+    await executeAgain({ id: record.id, failed: true }, handleSuccess);
     expandedRowKeys.value = [];
   }
 
@@ -213,6 +212,14 @@
           popConfirm: {
             title: '是否确认重复执行？',
             confirm: handleExecuteAgain.bind(null, record),
+            placement: 'topLeft',
+          },
+        },
+        {
+          label: '失败重试',
+          popConfirm: {
+            title: '失败任务重新执行？',
+            confirm: handleExecuteFailedAgain.bind(null, record),
             placement: 'topLeft',
           },
         },

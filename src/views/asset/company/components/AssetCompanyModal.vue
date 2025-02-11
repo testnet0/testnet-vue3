@@ -18,7 +18,7 @@
     //labelWidth: 150,
     schemas: formSchema,
     showActionButtonGroup: false,
-    baseColProps: { span: 24 },
+    baseColProps: { span: 18 },
   });
   //表单赋值
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {

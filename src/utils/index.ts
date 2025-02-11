@@ -4,7 +4,7 @@ import type { FormSchema } from "@/components/Form";
 
 import { unref } from 'vue';
 import { isObject } from '/@/utils/is';
-
+import Big from 'big.js';
 // update-begin--author:sunjianlei---date:20220408---for: 【VUEN-656】配置外部网址打不开，原因是带了#号，需要替换一下
 export const URL_HASH_TAB = `__AGWE4H__HASH__TAG__PWHRG__`;
 // update-end--author:sunjianlei---date:20220408---for: 【VUEN-656】配置外部网址打不开，原因是带了#号，需要替换一下
@@ -123,7 +123,7 @@ export function cloneObject(obj) {
 
 export const withInstall = <T>(component: T, alias?: string) => {
   //console.log("---初始化---", component)
-  
+
   const comp = component as any;
   comp.install = (app: App) => {
     // @ts-ignore
@@ -254,7 +254,9 @@ export function numToUpper(value) {
       }
     };
     let lth = value.toString().length;
-    value *= 100;
+    // update-begin--author:liaozhiyang---date:20241202---for：【issues/7493】numToUpper方法返回解决错误
+    value = new Big(value).times(100);
+    // update-end--author:liaozhiyang---date:20241202---for：【issues/7493】numToUpper方法返回解决错误
     value += '';
     let length = value.length;
     if (lth <= 8) {
@@ -496,6 +498,7 @@ export function useConditionFilter() {
   // 下拉、单选、多选、开关、用户、部门、关联记录、省市区、popup、popupDict、下拉多选、下拉搜索、分类字典、自定义树
   const selectConditionOptions = [
     { label: '等于', value: 'eq', val: '=' },
+    { label: '模糊', value: 'like', val: 'LIKE' },
     { label: '在...中', value: 'in', val: 'IN', title: '包含' },
     { label: '不等于', value: 'ne', val: '!=' },
     ...commonConditionOptions,
@@ -520,6 +523,10 @@ export function useConditionFilter() {
       data.view = 'number';
     }
     switch (data.view) {
+      case 'file':
+      case 'image':
+      case 'password':
+        return commonConditionOptions;
       case 'text':
       case 'textarea':
       case 'umeditor':
@@ -550,3 +557,22 @@ export function useConditionFilter() {
   };
   return { filterCondition };
 }
+// 获取url中的参数
+export const getUrlParams = (url) => {
+  const result = {
+    url: '',
+    params: {},
+  };
+  const list = url.split('?');
+  result.url = list[0];
+  const params = list[1];
+  if (params) {
+    const list = params.split('&');
+    list.forEach((ele) => {
+      const dic = ele.split('=');
+      const label = dic[0];
+      result.params[label] = dic[1];
+    });
+  }
+  return result;
+};

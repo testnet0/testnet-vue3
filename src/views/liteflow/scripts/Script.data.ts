@@ -159,54 +159,6 @@ export const formSchema: FormSchema[] = [
     show: false,
   },
   {
-    label: '需安装',
-    field: 'needInstall',
-    component: 'JSwitch',
-    defaultValue: false,
-    componentProps: {
-      options: [true, false],
-    },
-  },
-  {
-    label: '安装命令',
-    field: 'installCommand',
-    component: 'JCodeEditor',
-    ifShow(renderCallbackParams) {
-      return renderCallbackParams.values.needInstall;
-    },
-    componentProps: {
-      height: '100px',
-      fullScreen: true,
-      language: 'shell',
-    },
-  },
-  {
-    label: '版本检查命令',
-    field: 'versionCheckCommand',
-    component: 'JCodeEditor',
-    componentProps: {
-      height: '100px',
-      fullScreen: true,
-      language: 'shell',
-    },
-    ifShow(renderCallbackParams) {
-      return renderCallbackParams.values.needInstall;
-    },
-  },
-  {
-    label: '版本更新命令',
-    field: 'updateCommand',
-    component: 'JCodeEditor',
-    componentProps: {
-      height: '100px',
-      fullScreen: true,
-      language: 'shell',
-    },
-    ifShow(renderCallbackParams) {
-      return renderCallbackParams.values.needInstall;
-    },
-  },
-  {
     label: '脚本类型',
     field: 'scriptType',
     component: 'JDictSelectTag',

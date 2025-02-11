@@ -11,7 +11,7 @@ enum Api {
   deleteBatch = '/testnet.server/assetWeb/deleteBatch',
   importExcel = '/testnet.server/assetWeb/importExcel',
   exportXls = '/testnet.server/assetWeb/exportXls',
-  getWebBody = '/testnet.server/assetWeb/getWebBody',
+  // getWebBody = '/testnet.server/assetWeb/getWebBody',
 }
 /**
  * 导出api
@@ -28,14 +28,14 @@ export const getImportUrl = Api.importExcel;
  */
 export const list = (params) => defHttp.get({ url: Api.list, params });
 
-/**
- * 获取资产Body
- */
-export const getWebBody = (params) => {
-  return defHttp.get({ url: Api.getWebBody, params }, { joinParamsToUrl: true }).then((response) => {
-    return response;
-  });
-};
+// /**
+//  * 获取资产Body
+//  */
+// export const getWebBody = (params) => {
+//   return defHttp.get({ url: Api.getWebBody, params }, { joinParamsToUrl: true }).then((response) => {
+//     return response;
+//   });
+// };
 
 /**
  * 删除单个

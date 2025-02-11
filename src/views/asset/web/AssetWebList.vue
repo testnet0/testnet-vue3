@@ -30,6 +30,10 @@
                 <Icon icon="ant-design:delete-outlined" />
                 删除
               </a-menu-item>
+              <a-menu-item key="2" @click="handleChangeLabels">
+                <Icon icon="ant-design:snippets-outlined" />
+                打标
+              </a-menu-item>
             </a-menu>
           </template>
           <a-button
@@ -47,6 +51,7 @@
     </BasicTable>
     <!-- 表单区域 -->
     <AssetWebModal @register="registerModal" @success="handleSuccess" />
+    <SelectAssetLabelModel @register="registerLabelModal" @success="handleSuccess" />
   </div>
 </template>
 
@@ -63,12 +68,15 @@
   import { batchRunChain, queryByAssetType, runChain } from '@/views/liteflow/chains/Chain.api';
   import { router } from '@/router';
   import {batchDeleteBySearch} from "@/views/asset/common/Common.api";
+  import SelectAssetLabelModel from "@/views/asset/common/components/SelectAssetLabelModel.vue";
   const queryParam = reactive<any>({});
   const queryObject = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
   //注册model
   const [registerModal, { openModal }] = useModal();
+  const [registerLabelModal, { openModal: openLabelModal }] = useModal();
+
   const listWeb = (params) => {
     const routeParams = router.currentRoute.value.query;
     const requestParams = {
@@ -165,8 +173,8 @@
    * 详情
    */
   async function handleDetail(record: Recordable) {
-    const result = await getWebBody({ id: record.portId });
-    record.body = result ? result.body : '';
+    // const result = await getWebBody({ id: record.portId });
+    // record.body = result ? result.body : '';
     openModal(true, {
       record,
       isUpdate: true,
@@ -224,6 +232,7 @@
   function getDropDownAction(record) {
     const modifiedItems = dropdownItems.value.map((item) => ({
       label: item.chainName,
+      icon: item.icon,
       popConfirm: {
         title: '确认运行' + item.chainName,
         confirm: handleRunChain.bind(null, item.id, item.chainName, record),
@@ -257,6 +266,18 @@
       console.error(error);
     }
   };
+
+  /**
+   * 批量打标
+   */
+  function handleChangeLabels() {
+    openLabelModal(true, {
+      data: selectedRowKeys.value,
+      queryObject: queryObject,
+      queryParam: queryParam,
+      assetType: 'web',
+    });
+  }
 </script>
 
 <style scoped></style>

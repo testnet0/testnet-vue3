@@ -42,6 +42,10 @@
                     <Icon icon="ant-design:delete-outlined" />
                     删除
                   </a-menu-item>
+                  <a-menu-item key="2" @click="handleChangeLabels">
+                    <Icon icon="ant-design:snippets-outlined" />
+                    打标
+                  </a-menu-item>
                 </a-menu>
               </template>
               <a-button
@@ -55,6 +59,7 @@
           </template>
         </BasicTable>
         <AssetApiModal @register="registerModal" @success="handleSuccess" />
+        <SelectAssetLabelModel @register="registerLabelModal" @success="handleSuccess" />
       </div>
     </a-col>
   </a-row>
@@ -73,6 +78,8 @@
   import AssetApiModal from '@/views/asset/api/components/AssetApiModal.vue';
   import { superQuerySchema } from '@/views/asset/api/AssetApi.data';
   import {batchDeleteBySearch} from "@/views/asset/common/Common.api";
+  import SelectAssetLabelModel from "@/views/asset/common/components/SelectAssetLabelModel.vue";
+  import {router} from "@/router";
 
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
@@ -99,6 +106,7 @@
 
   //字典model
   const [registerModal, { openModal }] = useModal();
+  const [registerLabelModal, { openModal: openLabelModal }] = useModal();
 
   /**
    * 批量运行
@@ -116,10 +124,19 @@
     (selectedRowKeys.value = []) && reload();
     leftTree.value.loadRootTreeData();
   }
+
+  const listByApi = (params) => {
+    const routeParams = router.currentRoute.value.query;
+    const requestParams = {
+      ...params,
+      ...routeParams,
+    };
+    return list(requestParams);
+  };
   // 列表页面公共参数、方法
   const { prefixCls, tableContext, onExportXlsx, onImportXls } = useListPage({
     tableProps: {
-      api: list,
+      api: listByApi,
       columns,
       rowKey: 'id',
       showIndexColumn: true,
@@ -243,6 +260,7 @@
   function getDropDownAction(record) {
     const modifiedItems = dropdownItems.value.map((item) => ({
       label: item.chainName,
+      icon: item.icon,
       popConfirm: {
         title: '确认运行' + item.chainName,
         confirm: handleRunChain.bind(null, item.id, item.chainName, record),
@@ -265,6 +283,18 @@
   }
   async function handleRunChain(id, chainName, record) {
     await runChain({ chainId: id, chainName: chainName, data: [record], assetType: 'api' });
+  }
+
+  /**
+   * 批量打标
+   */
+  function handleChangeLabels() {
+    openLabelModal(true, {
+      data: selectedRowKeys.value,
+      queryObject: queryObject,
+      queryParam: queryParam,
+      assetType: 'api',
+    });
   }
 </script>
 

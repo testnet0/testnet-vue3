@@ -10,7 +10,7 @@
       </div>
     </div>
     <div v-else class="aui-phone-logo">
-      <img :src="logoImg" alt="jeecg" />
+<!--      <img :src="logoImg" alt="jeecg" />-->
     </div>
     <div v-show="type === 'login'">
       <div class="aui-content">

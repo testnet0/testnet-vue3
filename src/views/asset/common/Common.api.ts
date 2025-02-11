@@ -5,6 +5,8 @@ const { createConfirm } = useMessage();
 
 enum CommonApi {
   deleteBySearch = '/testnet.server/asset/common/deleteBySearch',
+  changeLabels = '/testnet.server/asset/common/changeLabels',
+  changeVulStatus = '/testnet.server/asset/common/changeVulStatus',
 }
 
 /**
@@ -24,4 +26,12 @@ export const batchDeleteBySearch = (params, handleSuccess) => {
       });
     },
   });
+};
+
+export const batchChangeVulStatus = (params) => {
+  defHttp.post({ url: CommonApi.changeVulStatus, params });
+};
+
+export const batchAddLabelBySearch = (params) => {
+  defHttp.post({ url: CommonApi.changeLabels, params });
 };

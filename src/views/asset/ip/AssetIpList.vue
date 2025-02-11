@@ -30,6 +30,10 @@
                 <Icon icon="ant-design:delete-outlined" />
                 删除
               </a-menu-item>
+              <a-menu-item key="2" @click="handleChangeLabels">
+                <Icon icon="ant-design:snippets-outlined" />
+                打标
+              </a-menu-item>
             </a-menu>
           </template>
           <a-button
@@ -57,6 +61,7 @@
     </BasicTable>
     <!-- 表单区域 -->
     <AssetIpModal @register="registerModal" @success="handleSuccess" />
+    <SelectAssetLabelModel @register="registerLabelModal" @success="handleSuccess" />
   </div>
 </template>
 
@@ -73,11 +78,14 @@
   import { batchRunChain, queryByAssetType, runChain } from '@/views/liteflow/chains/Chain.api';
   import { router } from '@/router';
   import {batchDeleteBySearch} from "@/views/asset/common/Common.api";
+  import SelectAssetLabelModel from "@/views/asset/common/components/SelectAssetLabelModel.vue";
   const queryParam = reactive<any>({});
   const queryObject = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   //注册model
   const [registerModal, { openModal }] = useModal();
+  const [registerLabelModal, { openModal: openLabelModal }] = useModal();
+
   const listNew = (params) => {
     const routeParams = router.currentRoute.value.query;
     const requestParams = {
@@ -227,6 +235,7 @@
   function getDropDownAction(record) {
     const modifiedItems = dropdownItems.value.map((item) => ({
       label: item.chainName,
+      icon: item.icon,
       popConfirm: {
         title: '确认运行' + item.chainName,
         confirm: handleRunChain.bind(null, item.id, item.chainName, record),
@@ -260,6 +269,18 @@
       console.error(error);
     }
   };
+
+  /**
+   * 批量打标
+   */
+  function handleChangeLabels() {
+    openLabelModal(true, {
+      data: selectedRowKeys.value,
+      queryObject: queryObject,
+      queryParam: queryParam,
+      assetType: 'ip',
+    });
+  }
 </script>
 
 <style scoped></style>

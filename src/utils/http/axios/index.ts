@@ -140,6 +140,15 @@ const transform: AxiosTransform = {
         config.params = undefined;
       }
     }
+
+    // update-begin--author:sunjianlei---date:220241019---for：【JEECG作为乾坤子应用】作为乾坤子应用启动时，拼接请求路径
+    if (globSetting.isQiankunMicro) {
+      if (config.url && config.url.startsWith('/')) {
+        config.url = globSetting.qiankunMicroAppEntry + config.url
+      }
+    }
+    // update-end--author:sunjianlei---date:220241019---for：【JEECG作为乾坤子应用】作为乾坤子应用启动时，拼接请求路径
+
     return config;
   },
 
@@ -261,7 +270,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // authenticationScheme: 'Bearer',
         authenticationScheme: '',
         //接口超时设置
-        timeout: 10 * 1000,
+        timeout: 300 * 1000,
         // 基础接口地址
         // baseURL: globSetting.apiUrl,
         headers: { 'Content-Type': ContentTypeEnum.JSON },

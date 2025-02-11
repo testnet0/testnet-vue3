@@ -3,7 +3,8 @@ import { FormSchema } from '/@/components/Table';
 import { rules } from '/@/utils/helper/validator';
 import { h } from 'vue';
 import { router } from '@/router';
-import {createContextMenu} from "@/components/ContextMenu";
+import { createContextMenu } from '@/components/ContextMenu';
+import { Tag } from 'ant-design-vue';
 
 const handleContext = (e: MouseEvent, record: any) => {
   e.preventDefault();
@@ -93,24 +94,84 @@ export const columns: BasicColumn[] = [
     },
   },
   {
-    title: '主域名',
+    title: '主域名|标签',
     align: 'center',
+    resizable: true,
     dataIndex: 'domainId_dictText',
     customRender: ({ record }) => {
+      const labels = record.domainLabel_dictText ? record.domainLabel_dictText.split(',') : [];
+      const colors = [
+        '#ffb74d', // 中等橙色
+        '#81c784', // 中等绿色
+        '#7986cb', // 中等蓝色
+        '#f06292', // 中等粉色
+        '#ff8a65', // 中等红色
+        '#aed581', // 亮绿色
+        '#64b5f6', // 亮蓝色
+        '#fff176', // 亮黄色
+        '#ba68c8', // 中等紫色
+        '#ffb300', // 中等金色
+        '#dce775', // 柔和黄绿色
+      ];
+
+      const handleClick = () => {
+        router.push({
+          path: '/testnet/assetDomainList',
+          query: {
+            id: record.domainId ? record.domainId : '',
+            t: new Date().getTime(),
+          },
+        });
+      };
       return h(
-        'a',
+        'div',
         {
-          onClick: () => {
-            router.push({
-              path: '/testnet/assetDomainList',
-              query: {
-                id: record.domainId ? record.domainId : '',
-                t: new Date().getTime(),
-              },
-            });
+          style: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px', // 标签之间间距
+            justifyContent: 'center', // 标签居中
           },
         },
-        record.domainId_dictText ? record.domainId_dictText : ''
+        [
+          h(
+            'a',
+            {
+              style: {
+                marginRight: labels.length > 0 ? '6px' : '0', // 名称和标签之间的间距
+                cursor: 'pointer', // 鼠标指针样式
+              },
+              onClick: handleClick,
+            },
+            record.domainId_dictText // 显示名称
+          ),
+          ...(labels.length > 0 ? [
+            h(
+              'span',
+              {
+                style: {
+                  marginRight: '6px', // 分隔符和标签之间的间距
+                },
+              },
+              '|' // 分隔符
+            ),
+            ...labels.map((item, index) => {
+              const backgroundColor = colors[index % colors.length];
+              return h(
+                Tag,
+                {
+                  color: backgroundColor,
+                  style: {
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                    transition: 'all 0.3s ease', // 平滑过渡
+                    cursor: 'pointer',
+                  },
+                },
+                () => item
+              );
+            }),
+          ] : []),
+        ]
       );
     },
   },
@@ -126,8 +187,9 @@ export const columns: BasicColumn[] = [
     },
   },
   {
-    title: '解析IP(开放端口)',
+    title: '解析IP(开放端口数)',
     align: 'center',
+    width: 200,
     dataIndex: 'ip', // 数据索引应与自定义渲染的属性一致
     resizable: true,
     customRender: ({ record }) => {
@@ -137,43 +199,53 @@ export const columns: BasicColumn[] = [
       return h(
         'div', // 创建一个容器div来包裹所有的a标签
         {
-          style: { display: 'flex', flexDirection: 'column' }, // 使用flex布局，子元素自动换行
+          style: {
+            maxHeight: '150px', // 限制高度
+            overflowY: 'auto', // 启用纵向滚动条
+            display: 'flex',
+            flexDirection: 'column',
+          }, // 使用flex布局，子元素自动换行
         },
         record.ipList.map((ipObj, index) => {
-          return h(
+          return [h(
             'a',
             {
               key: index, // 添加key以帮助React识别元素
               onClick: (event) => {
-                event.preventDefault(); // 阻止默认行为，因为我们将手动处理跳转
+                event.preventDefault();
                 router.push({
                   path: '/testnet/assetIpList',
                   query: {
                     id: ipObj.id,
-                    t: new Date().getTime(), // 时间戳，用于防缓存
+                    t: new Date().getTime(),
                   },
                 });
               },
             },
-            `${ipObj.ip}(${ipObj.portCount})` // 显示IP和端口计数
-          );
-        })
+            `${ipObj.ip}(${ipObj.portCount})`
+          ),];
+        }),
       );
     },
   },
   {
     title: 'Web站点/状态码',
     align: 'center',
-    dataIndex: 'web', // 数据索引应与自定义渲染的属性一致
+    dataIndex: 'web',
     resizable: true,
     customRender: ({ record }) => {
       if (!record.assetWebVOList || record.assetWebVOList.length === 0) {
-        return '暂无'; // 如果ipList不存在或为空，直接返回"暂无"
+        return '暂无';
       }
       return h(
         'div', // 创建一个容器div来包裹所有的a标签
         {
-          style: { display: 'flex', flexDirection: 'column' }, // 使用flex布局，子元素自动换行
+          style: {
+            maxHeight: '150px', // 限制高度
+            overflowY: 'auto', // 启用纵向滚动条
+            display: 'flex',
+            flexDirection: 'column',
+          }, // 使用flex布局，子元素自动换行
         },
         record.assetWebVOList.map((webObject, index) => {
           return h(
@@ -223,6 +295,61 @@ export const columns: BasicColumn[] = [
     title: '资产标签',
     align: 'center',
     dataIndex: 'assetLabel_dictText',
+    resizable: true,
+    customRender: ({ record }) => {
+      if (record.assetLabel_dictText) {
+        return h(
+          'div',
+          {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px', // 标签之间间距
+              justifyContent: 'center', // 标签居中
+            },
+          },
+          record.assetLabel_dictText.split(',').map((item, index) => {
+            const colors = [
+              '#ffb74d', // 中等橙色
+              '#81c784', // 中等绿色
+              '#7986cb', // 中等蓝色
+              '#f06292', // 中等粉色
+              '#ff8a65', // 中等红色
+              '#aed581', // 亮绿色
+              '#64b5f6', // 亮蓝色
+              '#fff176', // 亮黄色
+              '#ba68c8', // 中等紫色
+              '#ffb300', // 中等金色
+              '#dce775', // 柔和黄绿色
+            ];
+            // 根据索引轮流使用颜色数组中的颜色
+            const backgroundColor = colors[index % colors.length];
+
+            return h(
+              Tag,
+              {
+                color: backgroundColor,
+                style: {
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                  transition: 'all 0.3s ease', // 平滑过渡
+                  cursor: 'pointer',
+                },
+                onClick: () => {
+                  router.push({
+                    path: '/testnet/assetSubDomainList',
+                    query: {
+                      assetLabel: record.assetLabel.split(',')[index],
+                      t: new Date().getTime(),
+                    },
+                  });
+                },
+              },
+              () => item
+            );
+          })
+        );
+      }
+    },
   },
   {
     title: '来源',
@@ -247,42 +374,10 @@ export const columns: BasicColumn[] = [
 //查询数据
 export const searchFormSchema: FormSchema[] = [
   {
-    label: '项目',
-    field: 'projectId',
-    component: 'JSearchSelect',
-    componentProps: {
-      dict: 'project,project_name,id',
-      async: true,
-    },
-    //colProps: {span: 6},
-  },
-  {
     label: '主域名',
-    field: 'domainId',
-    component: 'JPopupDict',
-    componentProps: {
-      placeholder: '请选择',
-      dictCode: 'select_domain,domain,id',
-      multi: true,
-    },
+    field: 'domain',
+    component: 'Input',
   },
-  // {
-  //   label: '域名',
-  //   field: 'domainId',
-  //   component: 'JPopup',
-  //   componentProps: ({ formActionType }) => {
-  //     const { setFieldsValue } = formActionType;
-  //     return {
-  //       setFieldsValue,
-  //       placeholder: '请选择',
-  //       code: 'select_domain',
-  //       fieldConfig: [
-  //         { source: 'domain', target: 'domainId' },
-  //         { source: 'project_id', target: 'projectId' },
-  //       ],
-  //     };
-  //   },
-  // },
   {
     label: '子域名',
     field: 'subDomain',
@@ -292,26 +387,7 @@ export const searchFormSchema: FormSchema[] = [
   {
     label: 'IP',
     field: 'ip',
-    component: 'JPopup',
-    componentProps: ({ formActionType }) => {
-      const { setFieldsValue } = formActionType;
-      return {
-        setFieldsValue,
-        placeholder: '请选择',
-        code: 'select_ip',
-        fieldConfig: [
-          { source: 'ai_id', target: 'ip_id' },
-          { source: 'ip', target: 'ip' },
-          { source: 'project_id', target: 'projectId' },
-        ],
-      };
-    },
-  },
-  {
-    label: 'ip_id',
-    field: 'ip_id',
     component: 'Input',
-    show: false,
   },
 ];
 //表单数据
@@ -331,27 +407,46 @@ export const formSchema: FormSchema[] = [
   {
     label: '主域名',
     field: 'domainId',
-    component: 'JPopupDict',
+    component: 'JSearchSelect',
     componentProps: {
       placeholder: '请选择',
-      dictCode: 'select_domain,domain,id',
+      dict: 'asset_domain,domain,id',
+      async: true,
     },
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请选择主域名!' }];
+    },
+    ifShow: ({ values }) => {
+      return values.domain != null;
     },
   },
   {
     label: '子域名',
     field: 'subDomain',
-    component: 'Input',
+    component: 'InputTextArea',
     dynamicRules: ({ model, schema }) => {
-      return [{ required: true, message: '请输入子域名!' }, ];
+      return [{ required: true, message: '请输入子域名!' }];
+    },
+    componentProps: {
+      allowClear: true,
+      autoSize: {
+        //最小显示行数
+        minRows: 3,
+      },
+      placeholder: '支持多行输入,每行一个值,例如：\na.xxx.com\na.xxx.cn',
+      getPopupContainer: (node) => document.body,
+    },
+    dynamicDisabled: ({ values }) => {
+      return values.id != null;
     },
   },
   {
     label: '解析IP',
     field: 'ips',
-    component: 'Input',
+    component: 'InputTextArea',
+    componentProps: {
+      getPopupContainer: (node) => document.body,
+    },
   },
   {
     label: '解析类型',
@@ -419,23 +514,13 @@ export const formSchema: FormSchema[] = [
 export const superQuerySchema = {
   projectId: { title: '所属项目', order: 0, view: 'sel_search', type: 'string', dictTable: 'project', dictCode: 'id', dictText: 'project_name' },
   subDomain: { title: '子域名', order: 0, view: 'text', type: 'string' },
-  domainId: {
-    title: '主域名',
-    order: 1,
-    view: 'sel_search',
-    type: 'string',
-    dictTable: 'asset_domain',
-    dictCode: 'id',
-    dictText: 'domain',
-  },
-  // ip: { title: '解析IP', order: 2, view: 'list_multi', type: 'string', dictTable: 'asset_ip', dictCode: 'id', dictText: 'ip' },
   type: { title: '解析类型', order: 3, view: 'list', type: 'string', dictCode: 'dns_type' },
   dnsRecord: { title: '解析值', order: 4, view: 'text', type: 'string' },
   nameServer: { title: 'name_server', order: 5, view: 'text', type: 'string' },
   level: { title: '域名等级', order: 7, view: 'number', type: 'number' },
   source: { title: '来源', order: 10, view: 'text', type: 'string' },
-  createTime: { title: '创建时间', order: 12, view: 'date', type: 'string' },
-  updateTime: { title: '更新时间', order: 13, view: 'date', type: 'string' },
+  createTime: { title: '创建时间', order: 12, view: 'datetime', type: 'string' },
+  updateTime: { title: '更新时间', order: 13, view: 'datetime', type: 'string' },
   assetLabel: {
     title: '资产标签',
     order: 14,

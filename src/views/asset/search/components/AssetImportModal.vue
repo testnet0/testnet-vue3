@@ -19,6 +19,7 @@
       required: true,
       componentProps: {
         dictCode: 'project,project_name,id',
+        getPopupContainer: (node) => document.body,
       },
     },
     {

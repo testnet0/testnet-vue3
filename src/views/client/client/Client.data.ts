@@ -30,6 +30,26 @@ export const columns: BasicColumn[] = [
     },
   },
   {
+    title: 'CPU',
+    align: 'center',
+    dataIndex: 'cpuUsage',
+    customRender: ({ record }) => {
+      const cpuUsage = record.cpuUsage;
+      return `${cpuUsage.toFixed(0)} %`;
+    },
+  },
+  {
+    title: '内存',
+    align: 'center',
+    dataIndex: 'status',
+    customRender: ({ record }) => {
+      const freeMemory = record.freeMemory;
+      const totalMemory = record.totalMemory;
+      const usedMemory = totalMemory - freeMemory;
+      return `${usedMemory.toFixed(0)} / ${totalMemory.toFixed(0)} MB`;
+    },
+  },
+  {
     title: '创建时间',
     align: 'center',
     dataIndex: 'createTime',

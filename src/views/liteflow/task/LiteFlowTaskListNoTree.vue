@@ -33,21 +33,16 @@
 </template>
 
 <script lang="ts" name="org.jeecg.modules.cn.iotaa-script" setup>
-  import { ref, reactive, computed, unref } from 'vue';
-  import { BasicTable, useTable, TableAction } from '/src/components/Table';
+  import { ref, reactive } from 'vue';
+  import { BasicTable, TableAction } from '/src/components/Table';
   import { useModal } from '/src/components/Modal';
   import { useListPage } from '/src/hooks/system/useListPage';
   import { useUserStore } from '/src/store/modules/user';
-  import {
-    batchCancel,
-    cancelTask,
-    getSubTaskLog,
-    noTreeList
-  } from '@/views/liteflow/task/LiteFlowTask.api';
+  import { batchCancel, cancelTask, noTreeList } from '@/views/liteflow/task/LiteFlowTask.api';
   import { FormSchema } from '@/components/Form';
-  import {BasicColumn} from "@/components/Table";
-  import LiteFlowSubTaskModal from "@/views/liteflow/task/components/LiteFlowSubTaskModal.vue";
-  import LogModal from "@/views/liteflow/task/components/LogModal.vue";
+  import { BasicColumn } from '@/components/Table';
+  import LiteFlowSubTaskModal from '@/views/liteflow/task/components/LiteFlowSubTaskModal.vue';
+  import LogModal from '@/views/liteflow/task/components/LogModal.vue';
 
   const logId = ref('');
   const queryParam = reactive<any>({});

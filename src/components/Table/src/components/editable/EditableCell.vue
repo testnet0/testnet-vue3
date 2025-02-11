@@ -113,10 +113,17 @@
         const val = unref(currentValueRef);
 
         const value = isCheckValue ? (isNumber(val) && isBoolean(val) ? val : !!val) : val;
-
+        //update-begin---author:wangshuai---date:2024-09-19---for:【issues/7136】单元格上的tooltip提示，如果表格有滚动条，会不跟着单元格滚动---
+        let tooltipPosition:any = unref(table?.wrapRef.value)?.parentElement?.querySelector('.ant-table-body');
+        if(tooltipPosition){
+          tooltipPosition.style.position = 'relative';
+        }
+        //update-end---author:wangshuai---date:2024-09-19---for:【issues/7136】单元格上的tooltip提示，如果表格有滚动条，会不跟着单元格滚动---
         return {
           size: 'small',
-          getPopupContainer: () => unref(table?.wrapRef.value) ?? document.body,
+          //update-begin---author:wangshuai---date:2024-09-19---for:【issues/7136】单元格上的tooltip提示，如果表格有滚动条，会不跟着单元格滚动---
+          getPopupContainer: () => tooltipPosition ?? document.body,
+          //update-end---author:wangshuai---date:2024-09-19---for:【issues/7136】单元格上的tooltip提示，如果表格有滚动条，会不跟着单元格滚动---
           getCalendarContainer: () => unref(table?.wrapRef.value) ?? document.body,
           placeholder: createPlaceholderMessage(unref(getComponent)),
           ...apiSelectProps,
@@ -364,7 +371,9 @@
 
         if (props.column.dataIndex) {
           if (!props.record.editValueRefs) props.record.editValueRefs = {};
-          props.record.editValueRefs[props.column.dataIndex] = currentValueRef;
+          // update-begin--author:liaozhiyang---date:20250206---for：【issues/7709】当dataSource是响应式时，单元格编辑输入会自动关闭
+          props.record.editValueRefs[props.column.dataIndex] = unref(currentValueRef);
+          // update-end--author:liaozhiyang---date:20250206---for：【issues/7709】当dataSource是响应式时，单元格编辑输入会自动关闭
         }
         /* eslint-disable  */
         props.record.onCancelEdit = () => {

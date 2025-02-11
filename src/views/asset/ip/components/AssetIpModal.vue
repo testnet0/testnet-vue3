@@ -32,7 +32,7 @@
       console.log(data.record);
       await setFieldsValue({
         ...data.record,
-        // domains: data.record.domainVOList.map((ipObj: any) => ipObj.subDomain).join(','),
+        subDomains: data.record.domainVOList.map((ipObj: any) => ipObj.subDomain).join('\n'),
         // domains_dictText: data.record.domainVOList.map((ipObj: any) => ipObj.subDomain).join(','),
       });
     }

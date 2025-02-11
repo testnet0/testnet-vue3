@@ -225,6 +225,61 @@ export const columns: BasicColumn[] = [
     title: '资产标签',
     align: 'center',
     dataIndex: 'assetLabel_dictText',
+    resizable: true,
+    customRender: ({ record }) => {
+      if (record.assetLabel_dictText) {
+        return h(
+          'div',
+          {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px', // 标签之间间距
+              justifyContent: 'center', // 标签居中
+            },
+          },
+          record.assetLabel_dictText.split(',').map((item, index) => {
+            const colors = [
+              '#ffb74d', // 中等橙色
+              '#81c784', // 中等绿色
+              '#7986cb', // 中等蓝色
+              '#f06292', // 中等粉色
+              '#ff8a65', // 中等红色
+              '#aed581', // 亮绿色
+              '#64b5f6', // 亮蓝色
+              '#fff176', // 亮黄色
+              '#ba68c8', // 中等紫色
+              '#ffb300', // 中等金色
+              '#dce775', // 柔和黄绿色
+            ];
+            // 根据索引轮流使用颜色数组中的颜色
+            const backgroundColor = colors[index % colors.length];
+
+            return h(
+              Tag,
+              {
+                color: backgroundColor,
+                style: {
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                  transition: 'all 0.3s ease', // 平滑过渡
+                  cursor: 'pointer',
+                },
+                onClick: () => {
+                  router.push({
+                    path: '/testnet/assetWebList',
+                    query: {
+                      assetLabel: record.assetLabel.split(',')[index],
+                      t: new Date().getTime(),
+                    },
+                  });
+                },
+              },
+              () => item
+            );
+          })
+        );
+      }
+    },
   },
   {
     title: '来源',
@@ -258,27 +313,13 @@ export const searchFormSchema: FormSchema[] = [
   },
   {
     label: '子域名',
-    field: 'domain',
-    component: 'JPopupDict',
-    componentProps: {
-      placeholder: '请选择',
-      dictCode: 'select_sub_domain,sub_domain,id',
-      multi: true,
-    },
+    field: 'subdomain',
+    component: 'Input',
   },
   {
-    label: 'IP/端口',
-    field: 'portId',
-    component: 'JPopupDict',
-    componentProps: ({ formActionType }) => {
-      const { setFieldsValue } = formActionType;
-      return {
-        setFieldsValue,
-        placeholder: '请选择',
-        multi: true,
-        dictCode: 'select_port,ip_port,id',
-      };
-    },
+    label: 'IP',
+    field: 'ip',
+    component: 'Input',
   },
   {
     label: '站点标题',
@@ -286,12 +327,12 @@ export const searchFormSchema: FormSchema[] = [
     component: 'Input',
     //colProps: {span: 6},
   },
-  {
-    label: '返回包',
-    field: 'body',
-    component: 'Input',
-    //colProps: {span: 6},
-  },
+  // {
+  //   label: '返回包',
+  //   field: 'body',
+  //   component: 'Input',
+  //   //colProps: {span: 6},
+  // },
 ];
 //表单数据
 export const formSchema: FormSchema[] = [
@@ -302,6 +343,7 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       dict: 'project,project_name,id',
       async: true,
+      getPopupContainer: (node) => document.body,
     },
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入所属项目!' }];
@@ -314,6 +356,9 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       placeholder: '请选择',
       dictCode: 'select_sub_domain,sub_domain,id',
+    },
+    ifShow: ({ values }) => {
+      return values.id != null;
     },
   },
   {
@@ -331,25 +376,37 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入IP/端口!' }];
     },
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '访问链接',
     field: 'webUrl',
-    component: 'Input',
+    component: 'InputTextArea',
     dynamicRules: ({ model, schema }) => {
-      return [
-        { required: true, message: '请输入访问链接!' },
-        {
-          pattern: /^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-.,@?^=%&:\/~+#]*[\w\-@?^=%&\/~+#])?$/,
-          message: '请输入正确的网址!',
-        },
-      ];
+      return [{ required: true, message: '请输入访问链接!' }];
+    },
+    dynamicDisabled: ({ values }) => {
+      return values.id != null;
+    },
+    componentProps: {
+      allowClear: true,
+      autoSize: {
+        //最小显示行数
+        minRows: 3,
+      },
+      placeholder: '可以同时输入多个，换行分割，如:\nhttps://www.xx.com\nhttp://127.0.0.1',
+      getPopupContainer: (node) => document.body,
     },
   },
   {
     label: '站点标题',
     field: 'webTitle',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '资产标签',
@@ -364,6 +421,9 @@ export const formSchema: FormSchema[] = [
     label: 'http协议',
     field: 'httpSchema',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: 'Header',
@@ -372,72 +432,109 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       language: 'application/json',
     },
-  },
-  {
-    label: '返回包',
-    field: 'body',
-    component: 'JCodeEditor',
-    componentProps: {
-      language: 'javascript',
+    ifShow: ({ values }) => {
+      return values.id != null;
     },
   },
+  // {
+  //   label: '返回包',
+  //   field: 'body',
+  //   component: 'JCodeEditor',
+  //   componentProps: {
+  //     language: 'javascript',
+  //   },
+  //   ifShow: ({ values }) => {
+  //     return values.id != null;
+  //   },
+  // },
   {
     label: '站点截图',
     field: 'screenshot',
     dynamicDisabled: true,
     component: 'JImageUpload',
     componentProps: {},
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: 'Icon_hash',
     field: 'favicon',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '服务器',
     field: 'webServer',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: 'content_type',
     field: 'contentType',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '延迟',
     field: 'delayTime',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '技术框架',
     field: 'tech',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '状态码',
     field: 'statusCode',
     component: 'InputNumber',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: 'bodyMd5',
     field: 'bodyMd5',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: 'headerMd5',
     field: 'headerMd5',
     component: 'Input',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: 'content_length',
     field: 'contentLength',
     component: 'InputNumber',
+    ifShow: ({ values }) => {
+      return values.id != null;
+    },
   },
   {
     label: '来源',
     field: 'source',
     component: 'Input',
-    dynamicDisabled: true,
+    defaultValue: '手工录入',
+    show: false,
   },
   // TODO 主键隐藏字段，目前写死为ID
   {
@@ -477,8 +574,8 @@ export const superQuerySchema = {
   bodyMd5: { title: '返回包hash', order: 16, view: 'text', type: 'string' },
   headerMd5: { title: '返回头hash', order: 17, view: 'text', type: 'string' },
   jarm: { title: 'jarm指纹', order: 18, view: 'text', type: 'string' },
-  createTime: { title: '创建时间', order: 19, view: 'date', type: 'string' },
-  updateTime: { title: '更新时间', order: 20, view: 'date', type: 'string' },
+  createTime: { title: '创建时间', order: 19, view: 'datetime', type: 'string' },
+  updateTime: { title: '更新时间', order: 20, view: 'datetime', type: 'string' },
   assetLabel: {
     title: '资产标签',
     order: 14,

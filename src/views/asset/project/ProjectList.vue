@@ -56,6 +56,8 @@
   import { batchDelete, deleteOne, getExportUrl, getImportUrl, list } from './Project.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
 
+  const queryParam = reactive<any>({});
+  const queryObject = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   //注册model
   const [registerModal, { openModal }] = useModal();
@@ -78,6 +80,10 @@
       actionColumn: {
         width: 120,
         fixed: 'right',
+      },
+      beforeFetch: (params) => {
+        Object.assign(queryObject, params);
+        return Object.assign(params, queryParam);
       },
       defSort: {
         column: 'id',

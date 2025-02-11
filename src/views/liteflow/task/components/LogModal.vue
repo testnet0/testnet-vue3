@@ -136,7 +136,6 @@
       expandRowByClick: true,
       showActionColumn: false,
       showIndexColumn: true,
-      pagination: true,
       showTableSetting: false,
       useSearchForm: false,
       columns: columns,

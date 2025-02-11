@@ -43,6 +43,8 @@ export function useCustomSelection(
   let changeRows: Recordable[] = [];
   let allSelected: boolean = false;
 
+  let timer;
+
   // 扁平化数据，children数据也会放到一起
   const flattedData = computed(() => {
     // update-begin--author:liaozhiyang---date:20231016---for：【QQYUN-6774】解决checkbox禁用后全选仍能勾选问题
@@ -122,7 +124,7 @@ export function useCustomSelection(
       selectedLength: flattedData.value.filter((data) => selectedKeys.value.includes(getRecordKey(data))).length,
       // update-begin--author:liaozhiyang---date:20240511---for：【QQYUN-9289】解决表格条数不足pageSize数量时行数全部勾选但是全选框不勾选
       // 【TV360X-53】为空时会报错，加强判断
-      pageSize: tableData.value?.length ?? 0,
+      pageSize: flattedData.value?.length ?? 0,
       // update-end--author:liaozhiyang---date:20240511---for：【QQYUN-9289】解决表格条数不足pageSize数量时行数全部勾选但是全选框不勾选
       // 【QQYUN-6774】解决checkbox禁用后全选仍能勾选问题
       disabled: flattedData.value.length == 0,
@@ -183,6 +185,10 @@ export function useCustomSelection(
   let bodyResizeObserver: Nullable<ResizeObserver> = null;
   // 获取首行行高
   watchEffect(() => {
+    // update-begin--author:liaozhiyang---date:20241111---for：【issues/7442】basicTable从默认切换到宽松紧凑时多选框显示异常
+    // 这种写法是为了监听到 size 的变化
+    propsRef.value.size && void 0;
+    // update-end--author:liaozhiyang---date:20241111---for：【issues/7442】basicTable从默认切换到宽松紧凑时多选框显示异常
     if (bodyEl.value) {
       // 监听div高度变化
       bodyResizeObserver = new ResizeObserver((entries) => {
@@ -192,17 +198,11 @@ export function useCustomSelection(
             bodyHeight.value = Math.ceil(height);
           }
         }
+        updateRowHeight();
       });
       bodyResizeObserver.observe(bodyEl.value);
-      const el = bodyEl.value?.querySelector('tbody.ant-table-tbody tr.ant-table-row') as HTMLDivElement;
-      if (el) {
-        rowHeight.value = el.offsetHeight;
-        return;
-      }
     }
     rowHeight.value = 50;
-    // 这种写法是为了监听到 size 的变化
-    propsRef.value.size && void 0;
   });
 
   onMountedOrActivated(async () => {
@@ -217,6 +217,16 @@ export function useCustomSelection(
       bodyResizeObserver.disconnect();
     }
   });
+
+  // 更新首行行高
+  function updateRowHeight() {
+    const el = bodyEl.value?.querySelector('tbody.ant-table-tbody tr.ant-table-row') as HTMLDivElement;
+    if (el) {
+      // update-begin--author:liaozhiyang---date:20241111---for：【issues/7442】basicTable从默认切换到宽松紧凑时多选框显示异常
+      nextTick(() => rowHeight.value = el.offsetHeight);
+      // update-end--author:liaozhiyang---date:20241111---for：【issues/7442】basicTable从默认切换到宽松紧凑时多选框显示异常
+    }
+  }
 
   // 选择全部
   function onSelectAll(checked: boolean, flag = 'currentPage') {
@@ -317,6 +327,7 @@ export function useCustomSelection(
   function onSelect(record, checked) {
     onSelectChild(record, checked);
     updateSelected(record, checked);
+    onSelectParent(record, checked);
     emitChange();
   }
 
@@ -339,6 +350,12 @@ export function useCustomSelection(
         selectedRows.value.splice(index, 1);
       }
     }
+    // update-begin--author:liaozhiyang---date:20240919---for：【issues/7200】basicTable选中后没有选中样式
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      selectedKeys.value = [...selectedKeys.value];
+    }, 0);
+    // update-end--author:liaozhiyang---date:20240919---for：【issues/7200】basicTable选中后没有选中样式
   }
 
   // 调用用户自定义的onChange事件
@@ -372,7 +389,7 @@ export function useCustomSelection(
    * @param checked
    */
   function onSelectChild(record, checked) {
-    if (unref(propsRef)?.isTreeTable && unref(propsRef)?.rowSelection?.checkStrictly && !isRadio.value) {
+    if (unref(propsRef)?.isTreeTable && unref(propsRef)?.rowSelection?.checkStrictly === false && !isRadio.value) {
       if (record[childrenColumnName.value] && record[childrenColumnName.value].length > 0) {
         record[childrenColumnName.value].forEach((children) => {
           updateSelected(children, checked);
@@ -384,6 +401,59 @@ export function useCustomSelection(
     }
   }
   // update-end--author:liusq---date:20240819---for：树形表格设置层级关联不生效
+  /**
+   * 2024-09-24
+   * liaozhiyang
+   * 层级关联时，选中上级数据
+   * 【issues/7217】BasicTable树形表格设置checkStrictly无效
+   * */
+  function onSelectParent(record, checked) {
+    if (unref(propsRef)?.isTreeTable && unref(propsRef)?.rowSelection?.checkStrictly === false && !isRadio.value) {
+      let condition = true,
+        currentRecord = record;
+      while (condition) {
+        const parentRecord: any = findParent(tableData.value, currentRecord, childrenColumnName.value);
+        if (parentRecord) {
+          const childrenRecordKeys: any = [];
+          parentRecord[childrenColumnName.value].forEach((item) => {
+            childrenRecordKeys.push(getRecordKey(item));
+          });
+          if (checked === true) {
+            const isSubSet = childrenRecordKeys.every((item) => selectedKeys.value.includes(item));
+            isSubSet && updateSelected(parentRecord, checked);
+          } else if (checked === false) {
+            updateSelected(parentRecord, checked);
+          }
+          if (tableData.value.find((item) => getRecordKey(item) === getRecordKey(parentRecord))) {
+            // 循环终止
+            condition = false;
+          } else {
+            currentRecord = parentRecord;
+          }
+        } else {
+          // 循环终止
+          condition = false;
+        }
+      }
+    }
+    function findParent(tree, record, children = 'children') {
+      let parent = null;
+      function search(nodes) {
+        for (let node of nodes) {
+          if (node[children]?.some((child) => getRecordKey(child) === getRecordKey(record))) {
+            parent = node;
+            return true;
+          }
+          if (node[children] && search(node[children])) {
+            return true;
+          }
+        }
+        return false;
+      }
+      search(tree);
+      return parent;
+    }
+  }
   // 用于判断是否是自定义选择列
   function isCustomSelection(column: BasicColumn) {
     return column.key === CUS_SEL_COLUMN_KEY;

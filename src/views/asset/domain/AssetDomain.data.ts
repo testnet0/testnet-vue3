@@ -5,6 +5,7 @@ import { render } from '/@/utils/common/renderUtils';
 import { h } from 'vue';
 import { router } from '@/router';
 import {createContextMenu} from "@/components/ContextMenu";
+import {Tag} from "ant-design-vue";
 
 const handleContext = (e: MouseEvent, record: any) => {
   e.preventDefault();
@@ -142,18 +143,156 @@ export const columns: BasicColumn[] = [
     dataIndex: 'dnsServer',
   },
   {
-    title: '所属公司/组织',
+    title: '所属公司|标签',
     align: 'center',
+    resizable: true,
     dataIndex: 'companyId_dictText',
+    customRender: ({ record }) => {
+  // record.companyId_dictText 和 record.assetCompanyLabel_dictText 拼接
+  const labels = record.assetCompanyLabel_dictText ? record.assetCompanyLabel_dictText.split(',') : [];
+  const colors = [
+    '#ffb74d', // 中等橙色
+    '#81c784', // 中等绿色
+    '#7986cb', // 中等蓝色
+    '#f06292', // 中等粉色
+    '#ff8a65', // 中等红色
+    '#aed581', // 亮绿色
+    '#64b5f6', // 亮蓝色
+    '#fff176', // 亮黄色
+    '#ba68c8', // 中等紫色
+    '#ffb300', // 中等金色
+    '#dce775', // 柔和黄绿色
+  ];
+
+  const handleClick = () => {
+    router.push({
+      path: '/testnet/assetCompanyList',
+      query: {
+        id: record.companyId ? record.companyId : '',
+        t: new Date().getTime(),
+      },
+    });
+  };
+
+  return h(
+    'div',
+    {
+      style: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '6px', // 标签之间间距
+        justifyContent: 'center', // 标签居中
+      },
+    },
+    [
+      h(
+        'a',
+        {
+          style: {
+            marginRight: labels.length > 0 ? '6px' : '0', // 名称和标签之间的间距
+            cursor: 'pointer', // 鼠标指针样式
+          },
+          onClick: handleClick,
+        },
+        record.companyId_dictText // 显示名称
+      ),
+      ...(labels.length > 0 ? [
+        h(
+          'span',
+          {
+            style: {
+              marginRight: '6px', // 分隔符和标签之间的间距
+            },
+          },
+          '|' // 分隔符
+        ),
+        ...labels.map((item, index) => {
+          const backgroundColor = colors[index % colors.length];
+          return h(
+            Tag,
+            {
+              color: backgroundColor,
+              style: {
+                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                transition: 'all 0.3s ease', // 平滑过渡
+                cursor: 'pointer',
+              },
+            },
+            () => item
+          );
+        }),
+      ] : []),
+    ]
+  );
+},
+
+
+
   },
   {
     title: '资产标签',
     align: 'center',
     dataIndex: 'assetLabel_dictText',
+    resizable: true,
+    customRender: ({ record }) => {
+      if (record.assetLabel_dictText) {
+        return h(
+          'div',
+          {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px', // 标签之间间距
+              justifyContent: 'center', // 标签居中
+            },
+          },
+          record.assetLabel_dictText.split(',').map((item, index) => {
+            const colors = [
+              '#ffb74d', // 中等橙色
+              '#81c784', // 中等绿色
+              '#7986cb', // 中等蓝色
+              '#f06292', // 中等粉色
+              '#ff8a65', // 中等红色
+              '#aed581', // 亮绿色
+              '#64b5f6', // 亮蓝色
+              '#fff176', // 亮黄色
+              '#ba68c8', // 中等紫色
+              '#ffb300', // 中等金色
+              '#dce775', // 柔和黄绿色
+            ];
+            // 根据索引轮流使用颜色数组中的颜色
+            const backgroundColor = colors[index % colors.length];
+
+            return h(
+              Tag,
+              {
+                color: backgroundColor,
+                style: {
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                  transition: 'all 0.3s ease', // 平滑过渡
+                  cursor: 'pointer',
+                },
+                onClick: () => {
+                  router.push({
+                    path: '/testnet/assetDomainList',
+                    query: {
+                      assetLabel: record.assetLabel.split(',')[index],
+                      t: new Date().getTime(),
+                    },
+                  });
+                },
+              },
+              () => item
+            );
+          })
+        );
+      }
+    },
   },
   {
     title: '来源',
     align: 'center',
+    resizable: true,
     dataIndex: 'source',
   },
   {
@@ -205,20 +344,31 @@ export const formSchema: FormSchema[] = [
   {
     label: '主域名',
     field: 'domain',
-    component: 'Input',
+    component: 'InputTextArea',
     dynamicRules: ({ model, schema }) => {
-      return [
-        { required: true, message: '请输入主域名!' },
-      ];
+      return [{ required: true, message: '请输入主域名!' }];
+    },
+    dynamicDisabled: ({ values }) => {
+      return values.id != null;
+    },
+    componentProps: {
+      allowClear: true,
+      autoSize: {
+        //最小显示行数
+        minRows: 3,
+      },
+      placeholder: '可以同时输入多个，换行分割，如:\nxxx.com\nxxx.cn',
+      getPopupContainer: (node) => document.body,
     },
   },
   {
     label: '公司',
     field: 'companyId',
-    component: 'JPopupDict',
+    component: 'JSearchSelect',
     componentProps: {
-      placeholder: '请选择',
-      dictCode: 'select_company,company_name,company_id',
+      async: true,
+      dict: 'asset_company,company_name,id',
+      getPopupContainer: (node) => document.body,
     },
   },
   {
@@ -278,8 +428,8 @@ export const superQuerySchema = {
   whois: { title: 'whois', order: 4, view: 'text', type: 'string' },
   source: { title: '来源', order: 5, view: 'text', type: 'string' },
   dnsServer: { title: 'DNS服务器', order: 6, view: 'text', type: 'string' },
-  createTime: { title: '创建时间', order: 7, view: 'date', type: 'string' },
-  updateTime: { title: '更新时间', order: 8, view: 'date', type: 'string' },
+  createTime: { title: '创建时间', order: 7, view: 'datetime', type: 'string' },
+  updateTime: { title: '更新时间', order: 8, view: 'datetime', type: 'string' },
   assetLabel: {
     title: '资产标签',
     order: 9,

@@ -4,7 +4,8 @@ import { rules } from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { h } from 'vue';
 import { router } from '@/router';
-import {createContextMenu} from "@/components/ContextMenu";
+import { createContextMenu } from '@/components/ContextMenu';
+import { Tag } from 'ant-design-vue';
 //列表数据
 export const columns: BasicColumn[] = [
   {
@@ -34,6 +35,7 @@ export const columns: BasicColumn[] = [
   {
     title: '公司名称',
     align: 'center',
+    resizable: true,
     dataIndex: 'companyName',
     customRender: ({ record }) => {
       return h('a-button', { onContextmenu: (e: MouseEvent) => handleContext(e, record) }, record.companyName ? record.companyName : '');
@@ -43,20 +45,78 @@ export const columns: BasicColumn[] = [
     title: '资产标签',
     align: 'center',
     dataIndex: 'assetLabel_dictText',
+    resizable: true,
+    customRender: ({ record }) => {
+      if (record.assetLabel_dictText) {
+        return h(
+          'div',
+          {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px', // 标签之间间距
+              justifyContent: 'center', // 标签居中
+            },
+          },
+          record.assetLabel_dictText.split(',').map((item, index) => {
+            const colors = [
+              '#ffb74d', // 中等橙色
+              '#81c784', // 中等绿色
+              '#7986cb', // 中等蓝色
+              '#f06292', // 中等粉色
+              '#ff8a65', // 中等红色
+              '#aed581', // 亮绿色
+              '#64b5f6', // 亮蓝色
+              '#fff176', // 亮黄色
+              '#ba68c8', // 中等紫色
+              '#ffb300', // 中等金色
+              '#dce775', // 柔和黄绿色
+            ];
+            // 根据索引轮流使用颜色数组中的颜色
+            const backgroundColor = colors[index % colors.length];
+
+            return h(
+              Tag,
+              {
+                color: backgroundColor,
+                style: {
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                  transition: 'all 0.3s ease', // 平滑过渡
+                  cursor: 'pointer',
+                },
+                onClick: () => {
+                  router.push({
+                    path: '/testnet/assetCompanyList',
+                    query: {
+                      assetLabel: record.assetLabel.split(',')[index],
+                      t: new Date().getTime(),
+                    },
+                  });
+                },
+              },
+              () => item
+            );
+          })
+        );
+      }
+    },
   },
   {
     title: '来源',
     align: 'center',
     dataIndex: 'source',
+    resizable: true,
   },
   {
     title: '创建时间',
     align: 'center',
+    resizable: true,
     dataIndex: 'createTime',
     sorter: true,
   },
   {
     title: '更新时间',
+    resizable: true,
     align: 'center',
     dataIndex: 'updateTime',
     sorter: true,
@@ -98,11 +158,16 @@ export const formSchema: FormSchema[] = [
   {
     label: '公司名称',
     field: 'companyName',
-    component: 'Input',
+    component: 'InputTextArea',
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入公司名称!' }];
     },
     componentProps: {
+      autoSize: {
+        //最小显示行数
+        minRows: 3,
+      },
+      placeholder: '可以同时输入多个，换行分割，如:\n公司1\n公司2',
       getPopupContainer: (node) => document.body,
     },
   },
@@ -112,7 +177,7 @@ export const formSchema: FormSchema[] = [
     component: 'JSelectMultiple',
     componentProps: {
       dictCode: 'asset_label,label_name,id',
-      // getPopupContainer: (node) => node.parentNode,
+      getPopupContainer: (node) => document.body,
     },
   },
   {
@@ -144,8 +209,8 @@ export const superQuerySchema = {
     dictText: 'project_name',
   },
   source: { title: '来源', order: 2, view: 'text', type: 'string' },
-  createTime: { title: '创建时间', order: 7, view: 'date', type: 'string' },
-  updateTime: { title: '更新时间', order: 8, view: 'date', type: 'string' },
+  createTime: { title: '创建时间', order: 7, view: 'datetime', type: 'string' },
+  updateTime: { title: '更新时间', order: 8, view: 'datetime', type: 'string' },
   assetLabel: {
     title: '资产标签',
     order: 9,

@@ -15,6 +15,11 @@ export const columns: BasicColumn[] = [
       return record.engineToken.substring(0, 5) + '***';
     },
   },
+  {
+    title: '引擎地址',
+    align: 'center',
+    dataIndex: 'engineHost',
+  },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [];
@@ -28,6 +33,11 @@ export const formSchema: FormSchema[] = [
       dictCode: 'engine_name',
     },
     dynamicDisabled: true,
+  },
+  {
+    label: '引擎地址',
+    field: 'engineHost',
+    component: 'Input',
   },
   {
     label: '引擎Token',

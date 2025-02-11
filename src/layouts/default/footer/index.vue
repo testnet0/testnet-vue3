@@ -1,13 +1,10 @@
 <template>
   <Footer :class="prefixCls" v-if="getShowLayoutFooter" ref="footerRef">
     <div :class="`${prefixCls}__links`">
-<!--      <a @click="openWindow(SITE_URL)">{{ t('layout.footer.onlinePreview') }}</a>-->
       <a @click="openWindow(DOC_URL)">{{ t('layout.footer.onlineDocument') }}</a>
-
       <GithubFilled @click="openWindow(GITHUB_URL)" :class="`${prefixCls}__github`" />
-
     </div>
-    <div>Copyright &copy;2024 TestNet 出品</div>
+    <div>Copyright &copy;2024 TestNet {{ t('layout.footer.version') }}</div>
   </Footer>
 </template>
 

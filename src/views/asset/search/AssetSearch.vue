@@ -57,10 +57,12 @@
           { label: 'Hunter', value: 'hunter' },
           { label: 'Fofa', value: 'fofa' },
           { label: 'Quake', value: 'quake' },
+          { label: '0.zone', value: '0zone' },
           { label: 'Shodan', value: 'shodan' },
         ],
         onChange: (value) => {
           engine.value = value;
+          handleEngineChange(value);
         },
       },
       colProps: {
@@ -75,7 +77,7 @@
       componentProps: {
         placeholder: '请输入查询语法',
         engine: engine.value,
-        handleSearch: async (keyword) => {
+        handleAutoComplete: async (keyword) => {
           try {
             return await searchAutoComplete({ engine: engine.value, keyword });
           } catch (error) {
@@ -181,12 +183,59 @@
         placeholder: '请去quake web页面获取',
       },
     },
+    {
+      // 付费查询
+      label: '更新时间排序',
+      field: 'timestampSort',
+      component: 'Switch',
+      ifShow: ({ values }) => values.engine === '0zone', // 只有选择 0zone 才展示该输入框
+      componentProps: {
+        checkedChildren: '升序',
+        unCheckedChildren: '降序',
+        defaultValue: 'ASC',
+      },
+    },
+    {
+      // 付费查询
+      label: '发现时间排序',
+      field: 'exploreTimestampSort',
+      component: 'Switch',
+      ifShow: ({ values }) => values.engine === '0zone', // 只有选择 0zone 才展示该输入框
+      componentProps: {
+        checkedChildren: '升序',
+        unCheckedChildren: '降序',
+      },
+    },
+    {
+      // 付费查询
+      label: '付费查询',
+      field: 'zbPay',
+      component: 'Switch',
+      helpMessage: '超出每日免费请求次数后，是否通过Z币自动扣费',
+      ifShow: ({ values }) => values.engine === '0zone', // 只有选择 0zone 才展示该输入框
+      componentProps: {
+        checkedChildren: '是',
+        unCheckedChildren: '否',
+      },
+    },
   ];
 
   function handleEngineChange(value) {
     // 设置分页大小，根据需要调整每个搜索引擎的分页大小
     switch (value) {
       case 'shodan':
+        setPagination({ pageSize: 100, pageSizeOptions: ['100'] });
+        break;
+      case '0zone':
+        setPagination({ pageSize: 100, pageSizeOptions: ['10', '50', '100'] });
+        break;
+      case 'fofa':
+        setPagination({ pageSize: 100, pageSizeOptions: ['50', '100', '500', '1000'] });
+        break;
+      case 'hunter':
+        setPagination({ pageSize: 10, pageSizeOptions: ['10', '50', '100', '500'] });
+        break;
+      case 'quake':
         setPagination({ pageSize: 100, pageSizeOptions: ['10', '50', '100', '500'] });
         break;
     }
@@ -339,6 +388,7 @@
       columns,
       canResize: false,
       showIndexColumn: true,
+      showActionColumn: false,
       rowKey: (record) => {
         return record.ip + record.port + record.domain + record.schema;
       },
@@ -346,7 +396,7 @@
       formConfig: {
         labelWidth: 120,
         schemas: searchFormSchema,
-        autoSubmitOnEnter: false,
+        autoSubmitOnEnter: true,
         showAdvancedButton: false,
         fieldMapToNumber: [],
         //将表单内时间区域的值映射成 2个字段, 'YYYY-MM-DD'日期格式化
@@ -355,7 +405,7 @@
       beforeFetch: (params) => {
         queryParam.params = params;
         queryParam.engine = params.engine;
-        handleEngineChange(params.engine);
+        // handleEngineChange(params.engine);
       },
     },
   });
@@ -375,7 +425,7 @@
    */
   function handleOneKeyImport() {
     openModal(true, {
-      data: rowSelection.selectedRows,
+      // data: rowSelection.selectedRows,
       params: queryParam.params,
     });
   }

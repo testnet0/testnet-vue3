@@ -63,5 +63,3 @@ export const saveOrUpdate = (params, isUpdate) => {
   const url = isUpdate ? Api.edit : Api.save;
   return defHttp.post({ url: url, params });
 };
-
-

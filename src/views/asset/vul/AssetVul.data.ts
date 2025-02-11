@@ -444,8 +444,8 @@ export const superQuerySchema = {
   vulDesc: { title: '漏洞描述', order: 9, view: 'text', type: 'string' },
   vulUrl: { title: '漏洞链接', order: 10, view: 'text', type: 'string' },
   payload: { title: '触发请求包', order: 11, view: 'text', type: 'string' },
-  createTime: { title: '创建时间', order: 12, view: 'date', type: 'string' },
-  updateTime: { title: '更新时间', order: 13, view: 'date', type: 'string' },
+  createTime: { title: '创建时间', order: 12, view: 'datetime', type: 'string' },
+  updateTime: { title: '更新时间', order: 13, view: 'datetime', type: 'string' },
   owner: { title: '漏洞负责人', order: 14, view: 'text', type: 'string' },
 };
 

@@ -1,6 +1,8 @@
 import { FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table';
 import { h } from 'vue';
+import {Tag} from "ant-design-vue";
+import {router} from "@/router";
 
 export const columns: BasicColumn[] = [
   {
@@ -13,32 +15,98 @@ export const columns: BasicColumn[] = [
     title: '请求方法',
     align: 'center',
     dataIndex: 'httpMethod_dictText',
+    resizable: true,
   },
   {
     title: 'URL',
     customRender(opt) {
       return h('a', { href: opt.record.assetWebTreeId_dictText, target: '_blank', rel: 'noreferrer' }, opt.record.assetWebTreeId_dictText);
     },
+    resizable: true,
   },
   {
     title: '状态码',
     align: 'center',
     dataIndex: 'statusCode',
+    resizable: true,
   },
   {
     title: '返回包大小',
     align: 'center',
     dataIndex: 'contentLength',
+    resizable: true,
   },
   {
     title: '来源',
     align: 'center',
     dataIndex: 'source',
+    resizable: true,
   },
   {
     title: '路径hash',
     align: 'center',
     dataIndex: 'hash',
+    resizable: true,
+  },
+  {
+    title: '资产标签',
+    align: 'center',
+    dataIndex: 'assetLabel_dictText',
+    resizable: true,
+    customRender: ({ record }) => {
+      if (record.assetLabel_dictText) {
+        return h(
+          'div',
+          {
+            style: {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px', // 标签之间间距
+              justifyContent: 'center', // 标签居中
+            },
+          },
+          record.assetLabel_dictText.split(',').map((item, index) => {
+            const colors = [
+              '#ffb74d', // 中等橙色
+              '#81c784', // 中等绿色
+              '#7986cb', // 中等蓝色
+              '#f06292', // 中等粉色
+              '#ff8a65', // 中等红色
+              '#aed581', // 亮绿色
+              '#64b5f6', // 亮蓝色
+              '#fff176', // 亮黄色
+              '#ba68c8', // 中等紫色
+              '#ffb300', // 中等金色
+              '#dce775', // 柔和黄绿色
+            ];
+            // 根据索引轮流使用颜色数组中的颜色
+            const backgroundColor = colors[index % colors.length];
+
+            return h(
+              Tag,
+              {
+                color: backgroundColor,
+                style: {
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                  transition: 'all 0.3s ease', // 平滑过渡
+                  cursor: 'pointer',
+                },
+                onClick: () => {
+                  router.push({
+                    path: '/testnet/assetApiList',
+                    query: {
+                      assetLabel: record.assetLabel.split(',')[index],
+                      t: new Date().getTime(),
+                    },
+                  });
+                },
+              },
+              () => item
+            );
+          })
+        );
+      }
+    },
   },
 ];
 

@@ -18,17 +18,17 @@ export const columns: BasicColumn[] = [
     align: 'center',
     dataIndex: 'maxThreads',
   },
-  {
-    title: '配置类型',
-    align: 'center',
-    dataIndex: 'configFile',
-    customRender: ({ text }) => {
-      return render.renderSwitch(text, [
-        { text: '流程配置', value: 'N' },
-        { text: '配置文件', value: 'Y' },
-      ]);
-    },
-  },
+  // {
+  //   title: '配置类型',
+  //   align: 'center',
+  //   dataIndex: 'configFile',
+  //   customRender: ({ text }) => {
+  //     return render.renderSwitch(text, [
+  //       { text: '流程配置', value: 'N' },
+  //       { text: '配置文件', value: 'Y' },
+  //     ]);
+  //   },
+  // },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
@@ -67,27 +67,27 @@ export const formSchema: FormSchema[] = [
       return [{ required: true, message: '请输入节点!' }];
     },
   },
-  {
-    label: '配置类型',
-    field: 'configFile',
-    component: 'JSwitch',
-    helpMessage: '流程配置：指定流程使用的配置 YAML格式 配置文件：指定客户端使用的配置文件',
-    componentProps: {
-      //非选中时的内容
-      unCheckedChildren: '工作流配置',
-      //选中时的内容
-      checkedChildren: '配置文件',
-    },
-  },
-  {
-    label: '配置文件路径',
-    field: 'configPath',
-    component: 'Input',
-    helpMessage: '指定客户端使用的配置文件实际路径',
-    ifShow(renderCallbackParams) {
-      return renderCallbackParams.values.configFile == 'Y';
-    },
-  },
+  // {
+  //   label: '配置类型',
+  //   field: 'configFile',
+  //   component: 'JSwitch',
+  //   helpMessage: '流程配置：指定流程使用的配置 YAML格式 配置文件：指定客户端使用的配置文件',
+  //   componentProps: {
+  //     //非选中时的内容
+  //     unCheckedChildren: '工作流配置',
+  //     //选中时的内容
+  //     checkedChildren: '配置文件',
+  //   },
+  // },
+  // {
+  //   label: '配置文件路径',
+  //   field: 'configPath',
+  //   component: 'Input',
+  //   helpMessage: '指定客户端使用的配置文件实际路径',
+  //   ifShow(renderCallbackParams) {
+  //     return renderCallbackParams.values.configFile == 'Y';
+  //   },
+  // },
   {
     label: '工作流',
     field: 'chainId',
@@ -99,18 +99,12 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请选择工作流!' }];
     },
-    ifShow(renderCallbackParams) {
-      return renderCallbackParams.values.configFile == 'N';
-    },
   },
   {
     label: '并发数量',
     field: 'maxThreads',
     component: 'InputNumber',
     helpMessage: '指定客户端运行工作流的最大线程数量',
-    ifShow(renderCallbackParams) {
-      return renderCallbackParams.values.configFile == 'N';
-    },
   },
   {
     label: '配置内容',

@@ -5,7 +5,8 @@
       v-model:value="searchValue"
       :options="formattedOptions"
       @select="handleSelect"
-      @search="customHandleSearch"
+      @search="customHandleAutoComplete"
+      @change="handleChange"
       placeholder="请输入查询语法"
     >
       <template #option="item">
@@ -31,7 +32,7 @@
         </template>
       </template>
     </AutoComplete>
-    <a-button type="primary" @click="customHandleMark(searchValue)" class="search-button"> 收藏</a-button>
+    <a-button shape="round" preIcon="ant-design:star-outlined" @click="customHandleMark(searchValue)" class="search-button">收藏</a-button>
   </div>
 </template>
 
@@ -56,7 +57,7 @@
       type: Array,
       default: () => [],
     },
-    handleSearch: {
+    handleAutoComplete: {
       type: Function, // 接收外部自定义的搜索逻辑
       required: true,
       default: null,
@@ -104,10 +105,10 @@
   }
 
   // 自定义搜索函数
-  async function customHandleSearch(keyword: string) {
-    if (props.handleSearch) {
-      // 调用外部传入的 handleSearch，并更新 options
-      const newOptions = await props.handleSearch(keyword);
+  async function customHandleAutoComplete(keyword: string) {
+    if (props.handleAutoComplete) {
+      // 调用外部传入的 handleAutoComplete，并更新 options
+      const newOptions = await props.handleAutoComplete(keyword);
       if (newOptions) {
         formattedOptions.value = formatOptions(newOptions); // 更新 options
       }
