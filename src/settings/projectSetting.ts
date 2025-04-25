@@ -10,6 +10,9 @@ import {
   SessionTimeoutProcessingEnum,
   TabsThemeEnum,
 } from '/@/enums/appEnum';
+import { SIDE_BAR_BG_COLOR_LIST, HEADER_PRESET_BG_COLOR_LIST } from './designSetting';
+import { primaryColor } from '../../build/config/themeConfig';
+import { darkMode } from '/@/settings/designSetting';
 
 // ! 改动后需要清空浏览器缓存
 const setting: ProjectConfig = {
@@ -40,7 +43,11 @@ const setting: ProjectConfig = {
   sessionTimeoutProcessing: SessionTimeoutProcessingEnum.ROUTE_JUMP,
 
   // 项目主题色
-  themeColor: '#1890ff',
+  themeColor: primaryColor,
+  // update-begin--author:liaozhiyang---date:20250414--for：【QQYUN-11956】修复projectSetting中配置主题模式不生效
+  // 项目主题模式
+  themeMode: darkMode,
+  // update-end--author:liaozhiyang---date:20250414--for：【QQYUN-11956】修复projectSetting中配置主题模式不生效
 
   // 网站灰色模式，用于可能悼念的日期开启
   grayMode: false,
@@ -85,7 +92,7 @@ const setting: ProjectConfig = {
   // 菜单配置
   menuSetting: {
     // 背景色
-    bgColor: '#191b24',
+    bgColor: SIDE_BAR_BG_COLOR_LIST[0],
     // 是否固定住左侧菜单
     fixed: true,
     // 菜单折叠

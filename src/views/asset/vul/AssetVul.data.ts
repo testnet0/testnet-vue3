@@ -4,6 +4,7 @@ import { rules } from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { h } from 'vue';
 import { router } from '@/router';
+import { CURRENT_PROJECT_ID_KEY } from '../project/Project.api';
 //列表数据
 export const columns: BasicColumn[] = [
   {
@@ -184,12 +185,6 @@ export const columns: BasicColumn[] = [
     },
   },
   {
-    title: '漏洞负责人',
-    align: 'center',
-    dataIndex: 'owner',
-    resizable: true,
-  },
-  {
     title: '访问链接',
     align: 'center',
     dataIndex: 'vulUrl',
@@ -203,6 +198,18 @@ export const columns: BasicColumn[] = [
     align: 'center',
     dataIndex: 'source',
     resizable: true,
+  },
+  {
+    title: '漏洞负责人',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetManager_dictText',
+  },
+  {
+    title: '漏洞负责部门',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetDepartment_dictText',
   },
   {
     title: '创建日期',
@@ -221,6 +228,16 @@ export const columns: BasicColumn[] = [
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
+  {
+    label: '所属项目',
+    field: 'projectId',
+    component: 'JSearchSelect',
+    componentProps: {
+      dict: 'project,project_name,id',
+      async: true,
+    },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
+  },
   {
     label: '资产类型',
     field: 'assetType',
@@ -380,14 +397,6 @@ export const formSchema: FormSchema[] = [
     },
   },
   {
-    label: '漏洞负责人',
-    field: 'owner',
-    component: 'JSelectUser',
-    componentProps: {
-      isRadioSelection: true,
-    },
-  },
-  {
     label: '请求包',
     field: 'requestBody',
     component: 'JCodeEditor',
@@ -420,6 +429,16 @@ export const formSchema: FormSchema[] = [
     field: 'payload',
     component: 'JCodeEditor',
   },
+  {
+    label: '负责人',
+    field: 'assetManager',
+    component: 'JSelectUser',
+  },
+  {
+    label: '负责部门',
+    field: 'assetDepartment',
+    component: 'JSelectDept',
+  },
   // TODO 主键隐藏字段，目前写死为ID
   {
     label: '',
@@ -446,7 +465,18 @@ export const superQuerySchema = {
   payload: { title: '触发请求包', order: 11, view: 'text', type: 'string' },
   createTime: { title: '创建时间', order: 12, view: 'datetime', type: 'string' },
   updateTime: { title: '更新时间', order: 13, view: 'datetime', type: 'string' },
-  owner: { title: '漏洞负责人', order: 14, view: 'text', type: 'string' },
+  assetManager: {
+    title: '漏洞负责人',
+    order: 10,
+    view: 'sel_user',
+    type: 'string',
+  },
+  assetDepartment: {
+    title: '漏洞负责部门',
+    order: 11,
+    view: 'sel_depart',
+    type: 'string',
+  },
 };
 
 /**

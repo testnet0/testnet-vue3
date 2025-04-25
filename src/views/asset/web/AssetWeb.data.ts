@@ -1,8 +1,9 @@
-import { BasicColumn, FormSchema } from '/@/components/Table';
-import { h } from 'vue';
-import { router } from '@/router';
-import { Image, Tag } from 'ant-design-vue';
-import { Icon } from '/@/components/Icon';
+import {BasicColumn, FormSchema} from '/@/components/Table';
+import {h} from 'vue';
+import {router} from '@/router';
+import {Image, Tag} from 'ant-design-vue';
+import {Icon} from '/@/components/Icon';
+import {CURRENT_PROJECT_ID_KEY} from '../project/Project.api';
 
 //列表数据
 export const columns: BasicColumn[] = [
@@ -12,23 +13,6 @@ export const columns: BasicColumn[] = [
     dataIndex: 'projectId_dictText',
     fixed: 'left',
     resizable: true,
-    customRender: ({ record }) => {
-      return h(
-        'a',
-        {
-          onClick: () => {
-            router.push({
-              path: '/testnet/projectList',
-              query: {
-                id: record.projectId ? record.projectId : '',
-                t: new Date().getTime(),
-              },
-            });
-          },
-        },
-        record.projectId_dictText ? record.projectId_dictText : ''
-      );
-    },
   },
   {
     title: 'IP',
@@ -36,21 +20,51 @@ export const columns: BasicColumn[] = [
     dataIndex: 'ip_dictText',
     resizable: true,
     fixed: 'left',
-    customRender: ({ record }) => {
+    customRender: ({record}) => {
       return h(
-        'a',
+        'div',
         {
-          onClick: () => {
-            router.push({
-              path: '/testnet/assetIpList',
-              query: {
-                id: record.ip ? record.ip : '',
-                t: new Date().getTime(),
-              },
-            });
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
           },
         },
-        record.ip_dictText ? record.ip_dictText : ''
+        [
+          // 域名
+          h('span', null, record.ip_dictText),
+          // 跳转按钮
+          h(
+            'a-button',
+            {
+              type: 'link',
+              size: 'small',
+              style: {
+                padding: '2px',
+                minWidth: 'auto',
+              },
+              onClick: () => {
+                router.push({
+                  path: '/testnet/assetIpList',
+                  query: {
+                    id: record.ip,
+                    t: new Date().getTime(),
+                  },
+                });
+              },
+            },
+            [
+              h(Icon, {
+                icon: 'material-symbols:link',
+                style: {
+                  fontSize: '14px',
+                  color: '#1890ff',
+                },
+              }),
+            ]
+          ),
+        ]
       );
     },
   },
@@ -60,24 +74,52 @@ export const columns: BasicColumn[] = [
     resizable: true,
     fixed: 'left',
     dataIndex: 'domain_dictText',
-    customRender: ({ record }) => {
-      return h('span', [
-        h(
-          'a',
-          {
-            onClick: () => {
-              router.push({
-                path: '/testnet/assetSubDomainList',
-                query: {
-                  id: record.domain ? record.domain : '',
-                  t: new Date().getTime(),
-                },
-              });
-            },
+    customRender: ({record}) => {
+      return h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
           },
-          record.domain_dictText ? record.domain_dictText : ''
-        ),
-      ]);
+        },
+        [
+          // 域名
+          h('span', null, record.domain_dictText),
+          // 跳转按钮
+          record.domain_dictText ? h(
+            'a-button',
+            {
+              type: 'link',
+              size: 'small',
+              style: {
+                padding: '2px',
+                minWidth: 'auto',
+              },
+              onClick: () => {
+                router.push({
+                  path: '/testnet/assetSubDomainList',
+                  query: {
+                    id: record.domain,
+                    t: new Date().getTime(),
+                  },
+                });
+              },
+            },
+            [
+              h(Icon, {
+                icon: 'material-symbols:link',
+                style: {
+                  fontSize: '14px',
+                  color: '#1890ff',
+                },
+              }),
+            ]
+          ) : null,
+        ]
+      );
     },
   },
   {
@@ -87,8 +129,8 @@ export const columns: BasicColumn[] = [
     width: 100,
     dataIndex: 'portId_dictText',
     resizable: true,
-    customRender: ({ record }) => {
-      return h('span', [record.portId_dictText, ' ', h(Tag, { color: record.protocol === 'http' ? 'green' : 'blue' }, () => record.httpSchema)]);
+    customRender: ({record}) => {
+      return h('span', [record.portId_dictText, ' ', h(Tag, {color: record.protocol === 'http' ? 'green' : 'blue'}, () => record.httpSchema)]);
     },
   },
   {
@@ -114,23 +156,64 @@ export const columns: BasicColumn[] = [
     ellipsis: true,
     resizable: true,
     width: 260,
-    customRender: ({ record }) => {
-      return h('span', [
-        h(
-          'a',
-          {
-            href: record.webUrl,
-            target: '_blank',
-            rel: 'noreferrer',
-            style: 'text-decoration: none;', // 移除下划线并继承颜色
+    customRender: ({record}) => {
+      return h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
           },
-          [
-            record.webTitle ? record.webTitle : record.webUrl,
-            h(Icon, { icon: 'ant-design:link-outlined', style: 'margin-left: 4px;' }), // 调整边距
-          ]
-        ),
-      ]);
+        },
+        [
+          // 域名
+          h('span', null, record.webTitle?record.webTitle:'暂无标题'),
+          // 跳转按钮
+          h(
+            'a',
+            {
+              type: 'link',
+              size: 'small',
+              style: {
+                padding: '2px',
+                minWidth: 'auto',
+              },
+              href: record.webUrl,
+              target: '_blank',
+              rel: 'noreferrer',
+            },
+            [
+              h(Icon, {
+                icon: 'material-symbols:link',
+                style: {
+                  fontSize: '14px',
+                  color: '#1890ff',
+                },
+              }),
+            ]
+          ),
+        ]
+      );
     },
+    // customRender: ({record}) => {
+    //   return h('span', [
+    //     h(
+    //       'a',
+    //       {
+    //         href: record.webUrl,
+    //         target: '_blank',
+    //         rel: 'noreferrer',
+    //         style: 'text-decoration: none;', // 移除下划线并继承颜色
+    //       },
+    //       [
+    //         record.webTitle ? record.webTitle : record.webUrl,
+    //         h(Icon, {icon: 'ant-design:link-outlined', style: 'margin-left: 4px;'}), // 调整边距
+    //       ]
+    //     ),
+    //   ]);
+    // },
   },
   {
     title: '状态码',
@@ -144,13 +227,13 @@ export const columns: BasicColumn[] = [
     dataIndex: 'tech',
     width: 200,
     resizable: true,
-    customRender: ({ record }) => {
+    customRender: ({record}) => {
       if (record.tech) {
         const components = JSON.parse(record.tech);
         // 使用Fragment包裹所有的span标签
         return h(
           'div',
-          { style: { 'argin-bottom': '10px' } },
+          {style: {'argin-bottom': '10px'}},
           components.map((item, index) => {
             let color = 'default';
             // 根据不同的条件设置不同的颜色
@@ -181,7 +264,7 @@ export const columns: BasicColumn[] = [
     dataIndex: 'screenshot',
     width: 200,
     resizable: true,
-    customRender: ({ record }) => {
+    customRender: ({record}) => {
       if (!record.screenshot) {
         return h(Image, {
           width: 100,
@@ -226,7 +309,7 @@ export const columns: BasicColumn[] = [
     align: 'center',
     dataIndex: 'assetLabel_dictText',
     resizable: true,
-    customRender: ({ record }) => {
+    customRender: ({record}) => {
       if (record.assetLabel_dictText) {
         return h(
           'div',
@@ -287,6 +370,18 @@ export const columns: BasicColumn[] = [
     dataIndex: 'source',
   },
   {
+    title: '负责人',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetManager_dictText',
+  },
+  {
+    title: '负责部门',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetDepartment_dictText',
+  },
+  {
     title: '创建时间',
     align: 'center',
     dataIndex: 'createTime',
@@ -309,6 +404,7 @@ export const searchFormSchema: FormSchema[] = [
       dict: 'project,project_name,id',
       async: true,
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
     //colProps: {span: 6},
   },
   {
@@ -345,9 +441,10 @@ export const formSchema: FormSchema[] = [
       async: true,
       getPopupContainer: (node) => document.body,
     },
-    dynamicRules: ({ model, schema }) => {
-      return [{ required: true, message: '请输入所属项目!' }];
+    dynamicRules: ({model, schema}) => {
+      return [{required: true, message: '请输入所属项目!'}];
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
   },
   {
     label: '子域名',
@@ -357,7 +454,7 @@ export const formSchema: FormSchema[] = [
       placeholder: '请选择',
       dictCode: 'select_sub_domain,sub_domain,id',
     },
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -365,18 +462,18 @@ export const formSchema: FormSchema[] = [
     label: 'IP/端口',
     field: 'portId',
     component: 'JPopupDict',
-    componentProps: ({ formActionType }) => {
-      const { setFieldsValue } = formActionType;
+    componentProps: ({formActionType}) => {
+      const {setFieldsValue} = formActionType;
       return {
         setFieldsValue,
         placeholder: '请选择',
         dictCode: 'select_port,ip_port,id',
       };
     },
-    dynamicRules: ({ model, schema }) => {
-      return [{ required: true, message: '请输入IP/端口!' }];
+    dynamicRules: ({model, schema}) => {
+      return [{required: true, message: '请输入IP/端口!'}];
     },
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -384,10 +481,10 @@ export const formSchema: FormSchema[] = [
     label: '访问链接',
     field: 'webUrl',
     component: 'InputTextArea',
-    dynamicRules: ({ model, schema }) => {
-      return [{ required: true, message: '请输入访问链接!' }];
+    dynamicRules: ({model, schema}) => {
+      return [{required: true, message: '请输入访问链接!'}];
     },
-    dynamicDisabled: ({ values }) => {
+    dynamicDisabled: ({values}) => {
       return values.id != null;
     },
     componentProps: {
@@ -404,7 +501,7 @@ export const formSchema: FormSchema[] = [
     label: '站点标题',
     field: 'webTitle',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -421,7 +518,7 @@ export const formSchema: FormSchema[] = [
     label: 'http协议',
     field: 'httpSchema',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -432,7 +529,7 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       language: 'application/json',
     },
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -453,7 +550,7 @@ export const formSchema: FormSchema[] = [
     dynamicDisabled: true,
     component: 'JImageUpload',
     componentProps: {},
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -461,7 +558,7 @@ export const formSchema: FormSchema[] = [
     label: 'Icon_hash',
     field: 'favicon',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -469,7 +566,7 @@ export const formSchema: FormSchema[] = [
     label: '服务器',
     field: 'webServer',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -477,7 +574,7 @@ export const formSchema: FormSchema[] = [
     label: 'content_type',
     field: 'contentType',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -485,7 +582,7 @@ export const formSchema: FormSchema[] = [
     label: '延迟',
     field: 'delayTime',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -493,7 +590,7 @@ export const formSchema: FormSchema[] = [
     label: '技术框架',
     field: 'tech',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -501,7 +598,7 @@ export const formSchema: FormSchema[] = [
     label: '状态码',
     field: 'statusCode',
     component: 'InputNumber',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -509,7 +606,7 @@ export const formSchema: FormSchema[] = [
     label: 'bodyMd5',
     field: 'bodyMd5',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -517,7 +614,7 @@ export const formSchema: FormSchema[] = [
     label: 'headerMd5',
     field: 'headerMd5',
     component: 'Input',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -525,7 +622,7 @@ export const formSchema: FormSchema[] = [
     label: 'content_length',
     field: 'contentLength',
     component: 'InputNumber',
-    ifShow: ({ values }) => {
+    ifShow: ({values}) => {
       return values.id != null;
     },
   },
@@ -556,26 +653,43 @@ export const superQuerySchema = {
     dictCode: 'id',
     dictText: 'project_name',
   },
-  domain: { title: '子域名', order: 1, view: 'sel_search', type: 'string', dictTable: 'asset_sub_domain', dictCode: 'id', dictText: 'sub_domain' },
-  portId: { title: '端口', order: 2, view: 'popup', type: 'string', code: 'select_port', destFields: 'portId', orgFields: 'id', popupMulti: true },
-  webTitle: { title: '站点标题', order: 3, view: 'text', type: 'string' },
-  webHeader: { title: 'Header', order: 4, view: 'textarea', type: 'string' },
-  favicon: { title: 'favicon', order: 5, view: 'text', type: 'string' },
-  screenshot: { title: '站点截图', order: 6, view: 'image', type: 'string' },
-  source: { title: '来源', order: 7, view: 'text', type: 'string' },
-  webUrl: { title: '访问链接', order: 8, view: 'text', type: 'string' },
-  webServer: { title: '服务器', order: 9, view: 'text', type: 'string' },
-  contentType: { title: 'content_type', order: 10, view: 'text', type: 'string' },
-  delayTime: { title: '延迟', order: 11, view: 'text', type: 'string' },
-  tech: { title: '应用/组件', order: 12, view: 'text', type: 'string' },
-  statusCode: { title: '状态码', order: 13, view: 'number', type: 'number' },
-  contentLength: { title: 'content_length', order: 14, view: 'number', type: 'number' },
-  httpSchema: { title: 'http协议', order: 15, view: 'text', type: 'string' },
-  bodyMd5: { title: '返回包hash', order: 16, view: 'text', type: 'string' },
-  headerMd5: { title: '返回头hash', order: 17, view: 'text', type: 'string' },
-  jarm: { title: 'jarm指纹', order: 18, view: 'text', type: 'string' },
-  createTime: { title: '创建时间', order: 19, view: 'datetime', type: 'string' },
-  updateTime: { title: '更新时间', order: 20, view: 'datetime', type: 'string' },
+  domain: {
+    title: '子域名',
+    order: 1,
+    view: 'sel_search',
+    type: 'string',
+    dictTable: 'asset_sub_domain',
+    dictCode: 'id',
+    dictText: 'sub_domain'
+  },
+  portId: {
+    title: '端口',
+    order: 2,
+    view: 'popup',
+    type: 'string',
+    code: 'select_port',
+    destFields: 'portId',
+    orgFields: 'id',
+    popupMulti: true
+  },
+  webTitle: {title: '站点标题', order: 3, view: 'text', type: 'string'},
+  webHeader: {title: 'Header', order: 4, view: 'textarea', type: 'string'},
+  favicon: {title: 'favicon', order: 5, view: 'text', type: 'string'},
+  screenshot: {title: '站点截图', order: 6, view: 'image', type: 'string'},
+  source: {title: '来源', order: 7, view: 'text', type: 'string'},
+  webUrl: {title: '访问链接', order: 8, view: 'text', type: 'string'},
+  webServer: {title: '服务器', order: 9, view: 'text', type: 'string'},
+  contentType: {title: 'content_type', order: 10, view: 'text', type: 'string'},
+  delayTime: {title: '延迟', order: 11, view: 'text', type: 'string'},
+  tech: {title: '应用/组件', order: 12, view: 'text', type: 'string'},
+  statusCode: {title: '状态码', order: 13, view: 'number', type: 'number'},
+  contentLength: {title: 'content_length', order: 14, view: 'number', type: 'number'},
+  httpSchema: {title: 'http协议', order: 15, view: 'text', type: 'string'},
+  bodyMd5: {title: '返回包hash', order: 16, view: 'text', type: 'string'},
+  headerMd5: {title: '返回头hash', order: 17, view: 'text', type: 'string'},
+  jarm: {title: 'jarm指纹', order: 18, view: 'text', type: 'string'},
+  createTime: {title: '创建时间', order: 19, view: 'datetime', type: 'string'},
+  updateTime: {title: '更新时间', order: 20, view: 'datetime', type: 'string'},
   assetLabel: {
     title: '资产标签',
     order: 14,
@@ -584,6 +698,18 @@ export const superQuerySchema = {
     dictTable: 'asset_label',
     dictCode: 'id',
     dictText: 'label_name',
+  },
+  assetManager: {
+    title: '负责人',
+    order: 15,
+    view: 'sel_user',
+    type: 'string',
+  },
+  assetDepartment: {
+    title: '负责部门',
+    order: 16,
+    view: 'sel_depart',
+    type: 'string',
   },
 };
 

@@ -1,5 +1,7 @@
 import { defHttp } from '/@/utils/http/axios';
 import { useMessage } from '/@/hooks/web/useMessage';
+import { message } from 'ant-design-vue';
+import {onMounted, onUnmounted, reactive, ref} from 'vue';
 
 const { createConfirm } = useMessage();
 
@@ -12,6 +14,19 @@ enum Api {
   importExcel = '/testnet.server/project/importExcel',
   exportXls = '/testnet.server/project/exportXls',
 }
+
+// localStorage key常量
+export const CURRENT_PROJECT_ID_KEY = 'current_project_id';
+
+/**
+ * 切换项目
+ * @param projectId 项目ID
+ */
+export const switchProject = async (projectId: string) => {
+  // 保存到localStorage
+
+  localStorage.setItem(CURRENT_PROJECT_ID_KEY, projectId);
+};
 
 /**
  * 导出api

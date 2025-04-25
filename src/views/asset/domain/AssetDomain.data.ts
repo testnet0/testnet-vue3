@@ -4,8 +4,10 @@ import { rules } from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { h } from 'vue';
 import { router } from '@/router';
-import {createContextMenu} from "@/components/ContextMenu";
-import {Tag} from "ant-design-vue";
+import { createContextMenu } from '@/components/ContextMenu';
+import { message, Tag } from 'ant-design-vue';
+import { CURRENT_PROJECT_ID_KEY } from '../project/Project.api';
+import Icon from '/@/components/Icon';
 
 const handleContext = (e: MouseEvent, record: any) => {
   e.preventDefault();
@@ -75,23 +77,6 @@ export const columns: BasicColumn[] = [
     dataIndex: 'projectId_dictText',
     fixed: 'left',
     resizable: true,
-    customRender: ({ record }) => {
-      return h(
-        'a',
-        {
-          onClick: () => {
-            router.push({
-              path: '/testnet/projectList',
-              query: {
-                id: record.projectId ? record.projectId : '',
-                t: new Date().getTime(),
-              },
-            });
-          },
-        },
-        record.projectId_dictText ? record.projectId_dictText : ''
-      );
-    },
   },
   {
     title: '主域名',
@@ -148,86 +133,85 @@ export const columns: BasicColumn[] = [
     resizable: true,
     dataIndex: 'companyId_dictText',
     customRender: ({ record }) => {
-  // record.companyId_dictText 和 record.assetCompanyLabel_dictText 拼接
-  const labels = record.assetCompanyLabel_dictText ? record.assetCompanyLabel_dictText.split(',') : [];
-  const colors = [
-    '#ffb74d', // 中等橙色
-    '#81c784', // 中等绿色
-    '#7986cb', // 中等蓝色
-    '#f06292', // 中等粉色
-    '#ff8a65', // 中等红色
-    '#aed581', // 亮绿色
-    '#64b5f6', // 亮蓝色
-    '#fff176', // 亮黄色
-    '#ba68c8', // 中等紫色
-    '#ffb300', // 中等金色
-    '#dce775', // 柔和黄绿色
-  ];
+      // record.companyId_dictText 和 record.assetCompanyLabel_dictText 拼接
+      const labels = record.assetCompanyLabel_dictText ? record.assetCompanyLabel_dictText.split(',') : [];
+      const colors = [
+        '#ffb74d', // 中等橙色
+        '#81c784', // 中等绿色
+        '#7986cb', // 中等蓝色
+        '#f06292', // 中等粉色
+        '#ff8a65', // 中等红色
+        '#aed581', // 亮绿色
+        '#64b5f6', // 亮蓝色
+        '#fff176', // 亮黄色
+        '#ba68c8', // 中等紫色
+        '#ffb300', // 中等金色
+        '#dce775', // 柔和黄绿色
+      ];
 
-  const handleClick = () => {
-    router.push({
-      path: '/testnet/assetCompanyList',
-      query: {
-        id: record.companyId ? record.companyId : '',
-        t: new Date().getTime(),
-      },
-    });
-  };
+      const handleClick = () => {
+        router.push({
+          path: '/testnet/assetCompanyList',
+          query: {
+            id: record.companyId ? record.companyId : '',
+            t: new Date().getTime(),
+          },
+        });
+      };
 
-  return h(
-    'div',
-    {
-      style: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '6px', // 标签之间间距
-        justifyContent: 'center', // 标签居中
-      },
-    },
-    [
-      h(
-        'a',
+      return h(
+        'div',
         {
           style: {
-            marginRight: labels.length > 0 ? '6px' : '0', // 名称和标签之间的间距
-            cursor: 'pointer', // 鼠标指针样式
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px', // 标签之间间距
+            justifyContent: 'center', // 标签居中
           },
-          onClick: handleClick,
         },
-        record.companyId_dictText // 显示名称
-      ),
-      ...(labels.length > 0 ? [
-        h(
-          'span',
-          {
-            style: {
-              marginRight: '6px', // 分隔符和标签之间的间距
-            },
-          },
-          '|' // 分隔符
-        ),
-        ...labels.map((item, index) => {
-          const backgroundColor = colors[index % colors.length];
-          return h(
-            Tag,
+        [
+          h(
+            'a',
             {
-              color: backgroundColor,
               style: {
-                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
-                transition: 'all 0.3s ease', // 平滑过渡
-                cursor: 'pointer',
+                marginRight: labels.length > 0 ? '6px' : '0', // 名称和标签之间的间距
+                cursor: 'pointer', // 鼠标指针样式
               },
+              onClick: handleClick,
             },
-            () => item
-          );
-        }),
-      ] : []),
-    ]
-  );
-},
-
-
-
+            record.companyId_dictText // 显示名称
+          ),
+          ...(labels.length > 0
+            ? [
+                h(
+                  'span',
+                  {
+                    style: {
+                      marginRight: '6px', // 分隔符和标签之间的间距
+                    },
+                  },
+                  '|' // 分隔符
+                ),
+                ...labels.map((item, index) => {
+                  const backgroundColor = colors[index % colors.length];
+                  return h(
+                    Tag,
+                    {
+                      color: backgroundColor,
+                      style: {
+                        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)', // 更轻微的阴影
+                        transition: 'all 0.3s ease', // 平滑过渡
+                        cursor: 'pointer',
+                      },
+                    },
+                    () => item
+                  );
+                }),
+              ]
+            : []),
+        ]
+      );
+    },
   },
   {
     title: '资产标签',
@@ -296,6 +280,18 @@ export const columns: BasicColumn[] = [
     dataIndex: 'source',
   },
   {
+    title: '负责人',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetManager_dictText',
+  },
+  {
+    title: '负责部门',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetDepartment_dictText',
+  },
+  {
     title: '创建时间',
     align: 'center',
     dataIndex: 'createTime',
@@ -318,6 +314,7 @@ export const searchFormSchema: FormSchema[] = [
       dict: 'project,project_name,id',
       async: true,
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
     // colProps: { span: 6 },
   },
   {
@@ -340,6 +337,7 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入所属项目!' }];
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
   },
   {
     label: '主域名',
@@ -396,6 +394,16 @@ export const formSchema: FormSchema[] = [
     },
   },
   {
+    label: '负责人',
+    field: 'assetManager',
+    component: 'JSelectUser',
+  },
+  {
+    label: '负责部门',
+    field: 'assetDepartment',
+    component: 'JSelectDept',
+  },
+  {
     label: '来源',
     field: 'source',
     defaultValue: '手工录入',
@@ -438,6 +446,18 @@ export const superQuerySchema = {
     dictTable: 'asset_label',
     dictCode: 'id',
     dictText: 'label_name',
+  },
+  assetManager: {
+    title: '负责人',
+    order: 10,
+    view: 'sel_user',
+    type: 'string',
+  },
+  assetDepartment: {
+    title: '负责部门',
+    order: 11,
+    view: 'sel_depart',
+    type: 'string',
   },
 };
 

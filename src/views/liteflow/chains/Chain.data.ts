@@ -24,11 +24,6 @@ export const columns: BasicColumn[] = [
       return h(Icon, { icon: record.icon });
     },
   },
-  // {
-  //   title: '路由策略',
-  //   align: 'center',
-  //   dataIndex: 'router_dictText',
-  // },
   {
     title: '结果处理类名',
     align: 'center',

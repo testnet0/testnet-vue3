@@ -1,5 +1,5 @@
 export default {
-  footer: { onlineDocument: '在线文档', version: 'v2.0' },
+  footer: { onlineDocument: '在线文档', version: 'v2.2' },
   header: {
     // user dropdown
     dropdownItemDoc: '官网',

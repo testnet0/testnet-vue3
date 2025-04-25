@@ -1,11 +1,11 @@
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
-import { rules } from '/@/utils/helper/validator';
-import { render } from '/@/utils/common/renderUtils';
-import { h } from 'vue';
+import {h, ref} from 'vue';
 import { router } from '@/router';
 import { createContextMenu } from '@/components/ContextMenu';
 import { Tag } from 'ant-design-vue';
+import { CURRENT_PROJECT_ID_KEY } from '../project/Project.api';
+
 //列表数据
 export const columns: BasicColumn[] = [
   {
@@ -14,23 +14,6 @@ export const columns: BasicColumn[] = [
     dataIndex: 'projectId_dictText',
     fixed: 'left',
     resizable: true,
-    customRender: ({ record }) => {
-      return h(
-        'a',
-        {
-          onClick: () => {
-            router.push({
-              path: '/testnet/projectList',
-              query: {
-                id: record.projectId ? record.projectId : '',
-                t: new Date().getTime(),
-              },
-            });
-          },
-        },
-        record.projectId_dictText ? record.projectId_dictText : ''
-      );
-    },
   },
   {
     title: '公司名称',
@@ -108,6 +91,18 @@ export const columns: BasicColumn[] = [
     resizable: true,
   },
   {
+    title: '负责人',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetManager_dictText',
+  },
+  {
+    title: '负责部门',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetDepartment_dictText',
+  },
+  {
     title: '创建时间',
     align: 'center',
     resizable: true,
@@ -122,6 +117,17 @@ export const columns: BasicColumn[] = [
     sorter: true,
   },
 ];
+
+// 定义响应式变量
+const currentProjectId = ref(localStorage.getItem(CURRENT_PROJECT_ID_KEY) || '');
+
+// 监听 localStorage 变化
+window.addEventListener('storage', (event) => {
+  if (event.key === CURRENT_PROJECT_ID_KEY) {
+    currentProjectId.value = event.newValue;
+  }
+});
+
 //查询数据
 export const searchFormSchema: FormSchema[] = [
   {
@@ -132,6 +138,7 @@ export const searchFormSchema: FormSchema[] = [
       dict: 'project,project_name,id',
       async: true,
     },
+    defaultValue: currentProjectId.value,
     // colProps: { span: 6 },
   },
   {
@@ -154,6 +161,7 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入所属项目!' }];
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
   },
   {
     label: '公司名称',
@@ -179,6 +187,16 @@ export const formSchema: FormSchema[] = [
       dictCode: 'asset_label,label_name,id',
       getPopupContainer: (node) => document.body,
     },
+  },
+  {
+    label: '负责人',
+    field: 'assetManager',
+    component: 'JSelectUser',
+  },
+  {
+    label: '负责部门',
+    field: 'assetDepartment',
+    component: 'JSelectDept',
   },
   {
     label: '来源',
@@ -219,6 +237,18 @@ export const superQuerySchema = {
     dictTable: 'asset_label',
     dictCode: 'id',
     dictText: 'label_name',
+  },
+  assetManager: {
+    title: '负责人',
+    order: 10,
+    view: 'sel_user',
+    type: 'string',
+  },
+  assetDepartment: {
+    title: '负责部门',
+    order: 11,
+    view: 'sel_depart',
+    type: 'string',
   },
 };
 

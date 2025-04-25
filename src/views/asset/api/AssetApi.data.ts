@@ -3,6 +3,7 @@ import { BasicColumn } from '/@/components/Table';
 import { h } from 'vue';
 import {Tag} from "ant-design-vue";
 import {router} from "@/router";
+import { CURRENT_PROJECT_ID_KEY } from '../project/Project.api';
 
 export const columns: BasicColumn[] = [
   {
@@ -108,9 +109,31 @@ export const columns: BasicColumn[] = [
       }
     },
   },
+  {
+    title: '负责人',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetManager_dictText',
+  },
+  {
+    title: '负责部门',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetDepartment_dictText',
+  },
 ];
 
 export const searchFormSchema: FormSchema[] = [
+  {
+    label: '项目',
+    field: 'projectId',
+    component: 'JSearchSelect',
+    componentProps: {
+      dict: 'project,project_name,id',
+      async: true,
+    },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
+  },
   {
     label: '标题',
     field: 'title',
@@ -145,6 +168,7 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入所属项目!' }];
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
   },
   {
     label: '链接',
@@ -213,6 +237,16 @@ export const formSchema: FormSchema[] = [
       dictCode: 'asset_label,label_name,id',
       // getPopupContainer: (node) => node.parentNode,
     },
+  },
+  {
+    label: '负责人',
+    field: 'assetManager',
+    component: 'JSelectUser',
+  },
+  {
+    label: '负责部门',
+    field: 'assetDepartment',
+    component: 'JSelectDept',
   },
   {
     label: '请求头',
@@ -285,6 +319,18 @@ export const superQuerySchema = {
   contentLength: { title: '返回包大小', order: 11, view: 'number', type: 'number' },
   contentType: { title: '返回类型', order: 12, view: 'text', type: 'string' },
   assetLabel: { title: '资产标签', order: 13, view: 'list_multi', type: 'string', dictTable: 'asset_label', dictCode: 'id', dictText: 'label_name' },
+  assetManager: {
+    title: '负责人',
+    order: 14,
+    view: 'sel_user',
+    type: 'string',
+  },
+  assetDepartment: {
+    title: '负责部门',
+    order: 15,
+    view: 'sel_depart',
+    type: 'string',
+  },
 };
 
 /**

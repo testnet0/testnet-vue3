@@ -4,8 +4,10 @@ import { render } from '/@/utils/common/renderUtils';
 import { rules } from '/@/utils/helper/validator';
 import { h } from 'vue';
 import { router } from '@/router';
-import {createContextMenu} from "@/components/ContextMenu";
-import {Tag} from "ant-design-vue";
+import { createContextMenu } from '@/components/ContextMenu';
+import { Tag } from 'ant-design-vue';
+import { CURRENT_PROJECT_ID_KEY } from '../project/Project.api';
+import Icon from '/@/components/Icon';
 
 const handleContext = (e: MouseEvent, record: any) => {
   e.preventDefault();
@@ -75,23 +77,6 @@ export const columns: BasicColumn[] = [
     dataIndex: 'projectId_dictText',
     fixed: 'left',
     resizable: true,
-    customRender: ({ record }) => {
-      return h(
-        'a',
-        {
-          onClick: () => {
-            router.push({
-              path: '/testnet/projectList',
-              query: {
-                id: record.projectId ? record.projectId : '',
-                t: new Date().getTime(),
-              },
-            });
-          },
-        },
-        record.projectId_dictText ? record.projectId_dictText : ''
-      );
-    },
   },
   {
     title: 'ip',
@@ -126,21 +111,49 @@ export const columns: BasicColumn[] = [
         },
         record.domainVOList.map((domainObj, index) => {
           return h(
-            'a',
+            'div',
             {
-              key: index, // 添加key以帮助React识别元素
-              onClick: (event) => {
-                event.preventDefault();
-                router.push({
-                  path: '/testnet/assetSubdomainList',
-                  query: {
-                    id: domainObj.id,
-                    t: new Date().getTime(), // 时间戳，用于防缓存
-                  },
-                });
-              },
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px'
+              }
             },
-            domainObj.subDomain
+            [
+              // 域名
+              h('span', null, domainObj.subDomain),
+              // 跳转按钮
+              h(
+                'a-button',
+                {
+                  type: 'link',
+                  size: 'small',
+                  style: {
+                    padding: '2px',
+                    minWidth: 'auto',
+                  },
+                  onClick: () => {
+                    router.push({
+                      path: '/testnet/assetSubDomainList',
+                      query: {
+                        id: domainObj.id,
+                        t: new Date().getTime(),
+                      },
+                    });
+                  },
+                },
+                [
+                  h(Icon, {
+                    icon: 'material-symbols:link',
+                    style: {
+                      fontSize: '14px',
+                      color: '#1890ff',
+                    },
+                  }),
+                ]
+              ),
+            ]
           );
         })
       );
@@ -285,6 +298,18 @@ export const columns: BasicColumn[] = [
     dataIndex: 'source',
   },
   {
+    title: '负责人',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetManager_dictText',
+  },
+  {
+    title: '负责部门',
+    align: 'center',
+    resizable: true,
+    dataIndex: 'assetDepartment_dictText',
+  },
+  {
     title: '创建时间',
     align: 'center',
     dataIndex: 'createTime',
@@ -307,6 +332,7 @@ export const searchFormSchema: FormSchema[] = [
       dict: 'project,project_name,id',
       async: true,
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
   },
   {
     label: 'ip',
@@ -333,6 +359,7 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({ model, schema }) => {
       return [{ required: true, message: '请输入所属项目!' }];
     },
+    defaultValue: localStorage.getItem(CURRENT_PROJECT_ID_KEY),
   },
   {
     label: '资产标签',
@@ -407,6 +434,16 @@ export const formSchema: FormSchema[] = [
     component: 'Input',
   },
   {
+    label: '负责人',
+    field: 'assetManager',
+    component: 'JSelectUser',
+  },
+  {
+    label: '负责部门',
+    field: 'assetDepartment',
+    component: 'JSelectDept',
+  },
+  {
     label: '来源',
     field: 'source',
     defaultValue: '手工录入',
@@ -462,6 +499,18 @@ export const superQuerySchema = {
     dictTable: 'asset_label',
     dictCode: 'id',
     dictText: 'label_name',
+  },
+  assetManager: {
+    title: '负责人',
+    order: 15,
+    view: 'sel_user',
+    type: 'string',
+  },
+  assetDepartment: {
+    title: '负责部门',
+    order: 16,
+    view: 'sel_depart',
+    type: 'string',
   },
 };
 

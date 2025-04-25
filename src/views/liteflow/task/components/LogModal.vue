@@ -5,6 +5,7 @@
         <span v-if="isExpanded">收起全部</span>
         <span v-else>展开全部</span>
       </a-button>
+      <a-input-search v-model:value="searchValue" placeholder="请输入搜索内容" style="width: 200px" @change="onChange" />
     </div>
     <BasicTable
       :columns="columns"
@@ -44,7 +45,8 @@
   import { useListPage } from '/@/hooks/system/useListPage';
   import JCodeEditor from '@/components/Form/src/jeecg/components/JCodeEditor.vue';
   import { getSubTaskLog } from '@/views/liteflow/task/LiteFlowTask.api';
-  import { ref, watchEffect } from 'vue';
+  import { ref, watch, watchEffect } from 'vue';
+  import { debounce } from 'lodash-es';
 
   const props = defineProps({
     logId: {
@@ -54,6 +56,7 @@
   });
 
   const isExpanded = ref(false);
+  const keyword = ref(''); // 添加 keyword 变量
 
   function toggleExpand() {
     isExpanded.value = !isExpanded.value;
@@ -69,22 +72,29 @@
   const total = ref(0);
   const currentPageSize = ref(10);
 
-  watchEffect(() => {
-    props.logId && loadData(props.logId, 1, 10);
-  });
+  watch(
+    () => props.logId,
+    (newLogId) => {
+      if (newLogId) {
+        loadData(newLogId, 1, 10, keyword.value);
+      }
+    },
+    { immediate: true }
+  );
 
   const onPageChange = (pagination) => {
-    console.log('onPageChange', pagination);
-    loadData(props.logId, pagination.current, pagination.pageSize);
+    if (pagination.current !== current.value || pagination.pageSize !== currentPageSize.value) {
+      loadData(props.logId, pagination.current, pagination.pageSize, keyword.value);
+    }
   };
 
-  async function loadData(id, pageNum, pageSize) {
+  async function loadData(id, pageNum, pageSize, keyword) {
+    console.log('loadData called with:', { id, pageNum, pageSize, keyword });
     dataSource.value = [];
     loading.value = true;
-    getSubTaskLog({ id: id, pageNum: pageNum, pageSize: pageSize })
+    getSubTaskLog({ id, pageNum, pageSize, keyword })
       .then((res) => {
         if (res) {
-          console.log('res', res);
           total.value = res.total;
           current.value = res.current;
           currentPageSize.value = res.size;
@@ -95,7 +105,7 @@
         loading.value = false;
       });
   }
-  //定义表格列字段
+  // 定义表格列字段
   const columns: BasicColumn[] = [
     {
       title: '节点',
@@ -145,11 +155,14 @@
   // BasicTable绑定注册
   const [register, methods] = tableContext;
 
-  async function expandAll() {
-    methods.expandAll();
-  }
-  async function collapseAll() {
-    methods.collapseAll();
+  const debouncedLoadData = debounce((id, pageNum, pageSize, keyword) => {
+    loadData(id, pageNum, pageSize, keyword);
+  }, 300);
+
+  function onChange(event) {
+    keyword.value = event.target.value;
+    debouncedLoadData(props.logId, current.value, currentPageSize.value, keyword.value);
   }
 </script>
+
 <style lang="less" scoped></style>

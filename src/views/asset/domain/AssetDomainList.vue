@@ -5,7 +5,7 @@
       <!--插槽:table标题-->
       <template #tableTitle>
         <a-button type="primary" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-        <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXlsx"> 导出</a-button>
+        <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
         <j-upload-button type="primary" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
         <!-- 高级查询 -->
         <super-query :config="superQueryConfig" @search="handleSuperQuery" />
@@ -96,7 +96,7 @@
     return list(requestParams);
   };
   //注册table数据
-  const { prefixCls, tableContext, onExportXlsx, onImportXls } = useListPage({
+  const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
     tableProps: {
       title: '主域名',
       api: listNew,
@@ -200,7 +200,7 @@
     if (selectedRowKeys.value && selectedRowKeys.value.length > 0) {
       batchDelete({ ids: selectedRowKeys.value }, handleSuccess);
     } else {
-      batchDeleteBySearch({ queryObject, queryParam, assetType: 'domain' }, handleSuccess);
+      batchDeleteBySearch({ queryObject: { ...queryObject, ...queryParam }, assetType: 'domain' }, handleSuccess);
     }
   }
 
@@ -209,7 +209,7 @@
    */
   async function handleBatchRunChain(id, chainName) {
     batchRunChain(
-      { queryObject: queryObject, queryParam: queryParam, chainId: id, chainName: chainName, data: rowSelection.selectedRows, assetType: 'domain' },
+      { queryObject: { ...queryObject, ...queryParam }, chainId: id, chainName: chainName, data: rowSelection.selectedRows, assetType: 'domain' },
       handleSuccess
     );
   }
@@ -278,8 +278,7 @@
   function handleChangeLabels() {
     openLabelModal(true, {
       data: selectedRowKeys.value,
-      queryObject: queryObject,
-      queryParam: queryParam,
+      queryObject: { ...queryObject, ...queryParam },
       assetType: 'domain',
     });
   }

@@ -17,6 +17,16 @@ export const columns: BasicColumn[] = [
     dataIndex: 'scriptId',
   },
   {
+    title: '输入资产类型',
+    align:"center",
+    dataIndex: 'inputAsset_dictText'
+  },
+  {
+    title: '输出资产类型',
+    align:"center",
+    dataIndex: 'outputAsset_dictText'
+  },
+  {
     title: '脚本备注',
     align: 'center',
     dataIndex: 'scriptName',
@@ -180,28 +190,7 @@ export const formSchema: FormSchema[] = [
     label: '脚本内容',
     field: 'scriptData',
     component: 'JCodeEditor',
-    defaultValue:
-      'import com.yomahub.liteflow.script.ScriptExecuteWrap;\n' +
-      'import com.yomahub.liteflow.script.body.JaninoCommonScriptBody;\n' +
-      'import com.yomahub.liteflow.spi.holder.ContextAwareHolder;\n' +
-      'import testnet.client.service.ILiteFlowMessageSendService;\n' +
-      'import testnet.common.entity.liteflow.TaskExecuteMessage;\n' +
-      '\n' +
-      '\n' +
-      'public class demo implements JaninoCommonScriptBody {\n' +
-      '    public Void body(ScriptExecuteWrap wrap) {\n' +
-      '        TaskExecuteMessage taskExecuteMessage = (TaskExecuteMessage) wrap.cmp.getRequestData();\n' +
-      '        try {\n' +
-      '            ILiteFlowMessageSendService sendService = (ILiteFlowMessageSendService) ContextAwareHolder.loadContextAware().getBean(ILiteFlowMessageSendService.class);\n' +
-      '            sendService.setTaskId(taskExecuteMessage.getTaskId());\n' +
-      '            sendService.INFO("Welcome to TestNet! params is : {}", taskExecuteMessage.getConfig());\n' +
-      '            sendService.INFO("Instance params is : {}", taskExecuteMessage.getTaskParams());\n' +
-      '        } catch (Exception e) {\n' +
-      '            throw new RuntimeException(e);\n' +
-      '        }\n' +
-      '        return null;\n' +
-      '    }\n' +
-      '}',
+    defaultValue: '',
     required: true,
     componentProps: {
       height: '500px',
@@ -232,6 +221,8 @@ export const superQuerySchema = {
     dictCode: 'script_language',
   },
   enable: { title: '启用', order: 4, view: 'number', type: 'number' },
+  inputAsset: {title: '输入资产类型',order: 8,view: 'checkbox', type: 'string',dictCode: 'asset_type',},
+  outputAsset: {title: '输出资产类型',order: 9,view: 'checkbox', type: 'string',dictCode: 'asset_type',},
 };
 
 /**

@@ -110,6 +110,12 @@
       //colProps: {span: 6},
     },
     {
+      label: '参数',
+      field: 'subTaskParam',
+      component: 'JInput',
+      //colProps: {span: 6},
+    },
+    {
       label: '任务状态',
       field: 'taskStatus',
       component: 'JDictSelectTag',

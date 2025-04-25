@@ -21,9 +21,7 @@
           <Icon :icon="item.icon" :color="item.color" :size="30" />
         </template>
         <!--        <template #footer> 今日新增 {{ item.todayIncreaseCount }} 个 </template>-->
-        <template #footer>
-          今日新增 <CountTo :color="'#409EFF'" :startVal="0" :endVal="item.todayIncreaseCount" :duration="2000" /> 个
-        </template>
+        <template #footer> 今日新增 <CountTo :color="'#409EFF'" :startVal="0" :endVal="item.todayIncreaseCount" :duration="2000" /> 个 </template>
       </ChartCard>
     </div>
   </Card>
@@ -35,6 +33,7 @@
   import { ref } from 'vue';
   import { getAssetData } from '@/views/dashboard/Analysis/api';
   import { Card } from 'ant-design-vue';
+  import { CURRENT_PROJECT_ID_KEY } from '@/views/asset/project/Project.api';
 
   const loading = ref(false);
 
@@ -96,7 +95,7 @@
   async function initAssetData() {
     loading.value = true;
     try {
-      const res = await getAssetData(null);
+      const res = await getAssetData({ projectId: localStorage.getItem(CURRENT_PROJECT_ID_KEY) });
       // 将后端数据与前端定义的数据结合
       assetData.value = assetTypes.map((type, index) => ({
         ...type,
